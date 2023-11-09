@@ -30,18 +30,18 @@ def get_all_ads(id: int):
 
 
 @professionals_router.get('/{id}/{ad_id}')
-def get_ad(professional_id: int, ad_id: int):
+def get_ad(id: int, ad_id: int):
     # Check if the ad exists first
     pass
 
 @professionals_router.put('/{id}/{ad_id}')
-def edit_ad(professional_id: int, ad_id: int):
+def edit_ad(id: int, ad_id: int):
     # Check if the ad exists first
     pass
 
 
 @professionals_router.patch('/{id}/{ad_id}')
-def set_main_ad(professional_id: int, ad_id: int):
+def set_main_ad(id: int, ad_id: int):
     # Maybe first check if there is not already set main ad
     pass
 
