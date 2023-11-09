@@ -13,7 +13,7 @@ def get_personal_info(id: int):
     pass
 
 
-@professionals_router.post('/{id}')
+@professionals_router.put('/{id}')
 def edit_personal_info(id: int):
     pass
 
@@ -34,7 +34,7 @@ def get_ad(professional_id: int, ad_id: int):
     # Check if the ad exists first
     pass
 
-@professionals_router.post('/{id}/{ad_id}')
+@professionals_router.put('/{id}/{ad_id}')
 def edit_ad(professional_id: int, ad_id: int):
     # Check if the ad exists first
     pass
