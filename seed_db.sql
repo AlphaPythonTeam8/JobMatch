@@ -1,0 +1,1 @@
+-- This script will create the necessary tables for the database.

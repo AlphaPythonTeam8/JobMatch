@@ -1,0 +1,1 @@
+-- This script will populate the tables with initial data.
