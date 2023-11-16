@@ -1,5 +1,14 @@
-def register():
-    pass
+from data import  schemas, models
+from sqlalchemy.orm import Session
+
+
+def register(user: schemas.ProfessionalRegistration, db: Session):
+    db_user = models.Professional(Username=user.Username, FirstName=user.FirstName, LastName=user.LastName,
+                                  Password=user.password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 
 def get_all_ads(id: int):
@@ -24,3 +33,7 @@ def get_personal_info(id: int):
 
 def create_ad(id: int):
     pass
+
+
+def get_pro_by_username(db: Session, username: str):
+    return db.query(models.Professional).filter(models.Professional.Username == username).first()
