@@ -20,3 +20,5 @@ async def company_login(company_credentials: schemas.CompanyLogin, db: Session =
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
     return {"token": "example_token"}
+
+#test
