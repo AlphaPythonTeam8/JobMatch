@@ -1,10 +1,10 @@
-from common.hashing import bcrypt_context
+from common.hashing import hash_password
 from data import schemas, models
 from sqlalchemy.orm import Session
 
 
 def register(user: schemas.CompanyRegistration, db: Session):
-    hashed_password = bcrypt_context.hash(user.Password)
+    hashed_password = hash_password(user.Password)
     user.Password = hashed_password
 
     db_user = models.Company(**user.model_dump())

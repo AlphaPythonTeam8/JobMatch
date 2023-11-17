@@ -53,3 +53,8 @@ class Company(CompanyBase):
     Location: str | None = Field(None, min_length=5, max_length=255)
     PictureURL: HttpUrl | None
     Contact: str | None = Field(None, min_length=5, max_length=255)
+
+
+class CompanyLogin(BaseModel):
+    username: str
+    password: str

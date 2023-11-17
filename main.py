@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from JobMatch.routers.companies import companies_router
-from JobMatch.routers.professionals import professionals_router
+from routers.companies import companies_router
+from routers.professionals import professionals_router
 
 app = FastAPI()
 
