@@ -7,5 +7,5 @@ Base.prepare(engine)
 
 Professional = Base.classes.professional
 Company = Base.classes.company
-
+JobAd = Base.classes.jobad
 
