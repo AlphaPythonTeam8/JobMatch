@@ -1,4 +1,4 @@
-from data import  schemas, models
+from data import schemas, models
 from sqlalchemy.orm import Session
 
 
@@ -37,6 +37,7 @@ def get_pro_by_username(db: Session, username: str):
 def get_pro_by_id(id: int, db: Session):
     profile = db.query(models.Professional).filter(models.Professional.ProfessionalID == id).first()
     return profile
+
 
 def update_info(id: int, profile: schemas.Professional, db: Session):
     profile_query = db.query(models.Professional).filter(models.Professional.ProfessionalID == id)
