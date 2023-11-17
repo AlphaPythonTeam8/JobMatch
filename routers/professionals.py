@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from data.schemas import ProfessionalRegistration,ProfessionalBase
+from data.schemas import ProfessionalRegistration,ProfessionalBase, Professional
 from services import professional_services
 from data.database import get_db
 from sqlalchemy.orm import Session
@@ -14,15 +14,20 @@ def register(user: ProfessionalRegistration, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already registered")
     return professional_services.register(user=user, db=db)
 
-@professionals_router.get('/{id}')
-def get_personal_info(id: int):
-    pass
+@professionals_router.get('/{id}', response_model=Professional)
+def get_personal_info(id: int, db: Session = Depends(get_db)):
+    profile = professional_services.get_pro_by_id(id=id, db=db)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f'Professional profile with id {id} does not exist.')
+    return profile
 
 
-@professionals_router.put('/{id}')
-def edit_personal_info(id: int):
-    pass
-
+@professionals_router.put('/update-info/{id}', response_model=Professional)
+def update_info(id: int, updated_profile: Professional, db : Session = Depends(get_db)):
+    profile = professional_services.get_pro_by_id(id=id, db=db)
+    if not profile:
+        raise HTTPException(status_code=404, detail=f'Professional profile with id {id} does not exist.')
+    return professional_services.update_info(id, updated_profile, db)
 
 @professionals_router.post('/{id}/ad')
 def create_ad():

@@ -10,9 +10,9 @@ class ProfessionalBase(BaseModel):
 
 
 class ProfessionalRegistration(ProfessionalBase):
-    password: str
+    Password: str
 
-    @field_validator('password')
+    @field_validator('Password')
     @classmethod
     def validate_password(cls, password: str):
         pattern = '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$'
@@ -22,3 +22,8 @@ class ProfessionalRegistration(ProfessionalBase):
             raise ValueError('Password not strong enough')
 
 
+class Professional(ProfessionalBase): #TODO - Add the photo
+    BriefSummary: str | None
+    Location: str | None
+    Status: str
+    Contact: str | None
