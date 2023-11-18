@@ -31,6 +31,7 @@ def update_info(id: int, updated_profile: Professional, db : Session = Depends(g
 
 @professionals_router.post('/{id}/create-ad')
 #TODO - Get the professional id from authentication
+#TODO - Include response model
 def create_ad(id: int, ad: CompanyAd, db: Session = Depends(get_db)):
     profile = professional_services.get_pro_by_id(id=id, db=db)
     if not profile:
