@@ -58,3 +58,12 @@ class Company(CompanyBase):
 class CompanyLogin(BaseModel):
     username: str
     password: str
+
+
+class CompanyAd(BaseModel):
+    SalaryRange: str
+    MotivationDescription: str
+    Location: str
+    Status: str | None = None
+    Skills: str
+    CompanyAdRequirement: str | None = None
