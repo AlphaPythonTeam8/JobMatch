@@ -1,6 +1,4 @@
 import re
-from typing import Optional
-
 from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl
 
 
@@ -69,3 +67,12 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     id: Optional[str] = None
 
+
+
+class CompanyAd(BaseModel):
+    SalaryRange: str
+    MotivationDescription: str
+    Location: str
+    Status: str | None = None
+    Skills: str
+    CompanyAdRequirement: str | None = None
