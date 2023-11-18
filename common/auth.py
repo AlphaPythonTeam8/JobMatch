@@ -1,11 +1,9 @@
 from common import hashing
-from common.config import JWT_SECRET_KEY
-
+import oauth2
 from data import database, schemas, models
-from fastapi import APIRouter, Depends, status, HTTPException, Response
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
-from data.models import Company
 
 auth_router = APIRouter(tags=['CompanyAuthentication'])
 
@@ -19,6 +17,6 @@ async def company_login(company_credentials: schemas.CompanyLogin, db: Session =
     if not hashing.verify(company_credentials.password, company.Password):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
-    return {"token": "example_token"}
-
-#test
+    data = {"company_id": company.CompanyID}
+    access_token = oauth2.create_access_token(data=data)
+    return {"access_token": access_token, "token_type": "bearer"}
