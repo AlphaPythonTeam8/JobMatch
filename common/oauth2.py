@@ -9,7 +9,7 @@ from data import schemas
 
 load_dotenv()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenURL='login')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
 # pip install python-jose
 # SECRET_KEY - imported from .env
