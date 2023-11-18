@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.functions import user
-
+import common.oauth2
 from data.database import get_db
 from data.schemas import CompanyBase, CompanyRegistration
 from services import company_services
@@ -19,6 +19,11 @@ def register(company: CompanyRegistration, db: Session = Depends(get_db)):
     return company_services.register(user=company, db=db)
 
 
+@companies_router.post('/{id}')
+def create_jobad(id: int):
+    pass
+
+
 @companies_router.get('/{id}')
 def get_info(id: int):
     pass
@@ -29,9 +34,6 @@ def edit_info(id: int):
     pass
 
 
-@companies_router.post('/{id}')
-def create_ad(id: int):
-    pass
 
 
 @companies_router.get('/{id}/{ad_id}')
@@ -42,3 +44,5 @@ def get_ad(id: int, ad_id: int):
 @companies_router.put('/{id}/{ad_id}')
 def edit_add(id: int, ad_id: int):
     pass
+
+
