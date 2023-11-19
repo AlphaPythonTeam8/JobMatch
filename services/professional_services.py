@@ -13,7 +13,7 @@ def register(user: schemas.ProfessionalRegistration, db: Session):
     return db_user
 
 
-def get_all_ads(id: int):
+def get_all_ads(id: int, db: Session):
     pass
 
 
@@ -66,7 +66,8 @@ def update_info(id: int, profile: schemas.Professional, db: Session):
 
 
 def add_skills_to_db(skills, db: Session):
-    for skill in skills:
+    for data in skills:
+        skill, level = data.split(' - ')
         try:
             db.add(models.Skill(Description=skill))
             db.commit()
