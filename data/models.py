@@ -1,6 +1,7 @@
-from sqlalchemy import Integer, Column
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 from data.database import engine
 
@@ -23,3 +24,4 @@ class CompanyAdSkill(Base_declarative):
     __tablename__ = "companyadskill"
     CompanyAdID = Column(Integer, primary_key=True)
     SkillID = Column(Integer, primary_key=True)
+    Level = Column(String)

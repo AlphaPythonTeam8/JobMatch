@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl
 
+from data.models import Skill
+
 
 class ProfessionalBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -78,3 +80,16 @@ class CompanyAd(BaseModel):
     Status: str | None = None
     Skills: str
     CompanyAdRequirement: str | None = None
+
+
+class CompanyAdResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    FirstName: str
+    LastName: str
+    SalaryRange: str
+    MotivationDescription: str
+    Location: str
+    Skills: list
+    Status: str | None = None
+
+

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from data.schemas import ProfessionalRegistration, ProfessionalBase, Professional, CompanyAd
+from data.schemas import ProfessionalRegistration, ProfessionalBase, Professional, CompanyAd, CompanyAdResponse
 from services import professional_services
 from data.database import get_db
 from sqlalchemy.orm import Session
@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 professionals_router = APIRouter(prefix='/professionals')
 
 
-@professionals_router.post('/register', response_model=ProfessionalBase)
+@professionals_router.post('/register', response_model=ProfessionalBase) # add email
 def register(user: ProfessionalRegistration, db: Session = Depends(get_db)):
     db_user = professional_services.get_pro_by_username(db, username=user.Username)
     if db_user:
@@ -23,15 +23,15 @@ def get_personal_info(id: int, db: Session = Depends(get_db)):
 
 
 @professionals_router.put('/update-info/{id}', response_model=Professional)
-def update_info(id: int, updated_profile: Professional, db : Session = Depends(get_db)):
+def update_info(id: int, updated_profile: Professional, db: Session = Depends(get_db)):
     profile = professional_services.get_pro_by_id(id=id, db=db)
     if not profile:
         raise HTTPException(status_code=404, detail=f'Professional profile with id {id} does not exist.')
     return professional_services.update_info(id, updated_profile, db)
 
-@professionals_router.post('/{id}/create-ad')
+
+@professionals_router.post('/{id}/create-ad', response_model=CompanyAdResponse)
 #TODO - Get the professional id from authentication
-#TODO - Include response model
 def create_ad(id: int, ad: CompanyAd, db: Session = Depends(get_db)):
     profile = professional_services.get_pro_by_id(id=id, db=db)
     if not profile:

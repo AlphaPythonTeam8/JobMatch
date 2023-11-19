@@ -1,6 +1,8 @@
-import sqlalchemy.exc
 from data import schemas, models
 from sqlalchemy.orm import Session
+import sqlalchemy.exc
+
+from data.schemas import CompanyAdResponse
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
@@ -34,7 +36,17 @@ def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
     db.commit()
     db.refresh(new_ad)
     add_skills_to_ad(new_ad.CompanyAdID, skills, db)
-    return new_ad
+    names = db.query(models.Professional.FirstName,
+                     models.Professional.LastName).filter(models.Professional.ProfessionalID == id).first()
+    return CompanyAdResponse(
+        FirstName=names.FirstName,
+        LastName=names.LastName,
+        SalaryRange=ad.SalaryRange,
+        MotivationDescription=ad.MotivationDescription,
+        Location=ad.Location,
+        Skills=skills,
+        Status=ad.Status
+    )
 
 
 def get_pro_by_username(db: Session, username: str):
@@ -65,7 +77,8 @@ def add_skills_to_db(skills, db: Session):
 
 def add_skills_to_ad(ad_id: int, skills, db: Session):
     ad = db.query(models.CompanyAd.CompanyAdID).filter(models.CompanyAd.CompanyAdID == ad_id)
-    for skill in skills:
+    for data in skills:
+        skill, level = data.split(' - ')
         skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
-        db.add(models.CompanyAdSkill(CompanyAdID=ad, SkillID=skill_id))
+        db.add(models.CompanyAdSkill(CompanyAdID=ad, SkillID=skill_id, Level=level))
         db.commit()
