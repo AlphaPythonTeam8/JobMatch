@@ -1,8 +1,9 @@
 import re
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl
+
+from data.models import Skill
 
 
 class ProfessionalBase(BaseModel):
@@ -67,9 +68,9 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-
 class TokenData(BaseModel):
     id: Optional[str] = None
+
 
 
 class CompanyAd(BaseModel):
@@ -79,6 +80,33 @@ class CompanyAd(BaseModel):
     Status: str | None = None
     Skills: str
     CompanyAdRequirement: str | None = None
+
+
+class CompanyAdsResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    SalaryRange: str
+    MotivationDescription: str
+    Location: str
+    Skills: list
+    Status: str | None = None
+
+
+class CompanyAdResponse(CompanyAdsResponse):
+    FirstName: str
+    LastName: str
+
+    # @classmethod
+    # def from_query(cls, FirstName, LastName, SalaryRange, MotivationDescription, Location, Skills, Status):
+    #     return cls(
+    #         FirstName=FirstName,
+    #         LastName=LastName,
+    #         SalaryRange=SalaryRange,
+    #         MotivationDescription=MotivationDescription,
+    #         Location=Location,
+    #         Skills=Skills,
+    #         Status=Status
+    #     )
+
 
 
 class JobAd:

@@ -23,6 +23,8 @@ class CompanyAdSkill(Base_declarative):
     __tablename__ = "companyadskill"
     CompanyAdID = Column(Integer, primary_key=True)
     SkillID = Column(Integer, primary_key=True)
+    Level = Column(String)
+
 
 
 class JobAdSkill(Base_declarative):

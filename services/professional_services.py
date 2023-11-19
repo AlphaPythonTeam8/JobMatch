@@ -1,6 +1,8 @@
-import sqlalchemy.exc
 from data import schemas, models
 from sqlalchemy.orm import Session
+import sqlalchemy.exc
+
+from data.schemas import CompanyAdResponse, CompanyAdsResponse
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
@@ -11,8 +13,28 @@ def register(user: schemas.ProfessionalRegistration, db: Session):
     return db_user
 
 
-def get_all_ads(id: int):
-    pass
+def get_all_ads(id: int, db: Session):
+    res = []
+    ads = db.query(models.CompanyAd).join(
+        models.CompanyAdSkill, models.CompanyAd.CompanyAdID==models.CompanyAdSkill.CompanyAdID).join(
+        models.Skill, models.CompanyAdSkill.SkillID==models.Skill.SkillID
+    ).filter(models.CompanyAd.ProfessionalID==id).all()
+    for ad in ads:
+        skills = db.query(models.Skill.Description, models.CompanyAdSkill.Level).join(
+            models.CompanyAdSkill, models.CompanyAdSkill.SkillID==models.Skill.SkillID).join(
+            models.CompanyAd, models.CompanyAd.CompanyAdID==models.CompanyAdSkill.CompanyAdID).filter(
+            models.CompanyAd.CompanyAdID==ad.CompanyAdID).all()
+        # print([' - '.join(skill) for skill in skills])
+        res.append(CompanyAdsResponse(
+            FirstName='Test',
+            LastName='Test',
+            SalaryRange=ad.SalaryRange,
+            MotivationDescription=ad.MotivationDescription,
+            Location=ad.Location,
+            Skills=[' - '.join(skill) for skill in skills],
+            Status=ad.Status
+        ))
+    return res
 
 
 def get_ad(id: int):
@@ -34,7 +56,17 @@ def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
     db.commit()
     db.refresh(new_ad)
     add_skills_to_ad(new_ad.CompanyAdID, skills, db)
-    return new_ad
+    names = db.query(models.Professional.FirstName,
+                     models.Professional.LastName).filter(models.Professional.ProfessionalID == id).first()
+    return CompanyAdResponse(
+        FirstName=names.FirstName,
+        LastName=names.LastName,
+        SalaryRange=ad.SalaryRange,
+        MotivationDescription=ad.MotivationDescription,
+        Location=ad.Location,
+        Skills=skills,
+        Status=ad.Status
+    )
 
 
 def get_pro_by_username(db: Session, username: str):
@@ -54,7 +86,8 @@ def update_info(id: int, profile: schemas.Professional, db: Session):
 
 
 def add_skills_to_db(skills, db: Session):
-    for skill in skills:
+    for data in skills:
+        skill, level = data.split(' - ')
         try:
             db.add(models.Skill(Description=skill))
             db.commit()
@@ -65,7 +98,8 @@ def add_skills_to_db(skills, db: Session):
 
 def add_skills_to_ad(ad_id: int, skills, db: Session):
     ad = db.query(models.CompanyAd.CompanyAdID).filter(models.CompanyAd.CompanyAdID == ad_id)
-    for skill in skills:
+    for data in skills:
+        skill, level = data.split(' - ')
         skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
-        db.add(models.CompanyAdSkill(CompanyAdID=ad, SkillID=skill_id))
+        db.add(models.CompanyAdSkill(CompanyAdID=ad, SkillID=skill_id, Level=level))
         db.commit()
