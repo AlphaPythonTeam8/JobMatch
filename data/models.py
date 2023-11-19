@@ -23,3 +23,9 @@ class CompanyAdSkill(Base_declarative):
     __tablename__ = "companyadskill"
     CompanyAdID = Column(Integer, primary_key=True)
     SkillID = Column(Integer, primary_key=True)
+
+
+class JobAdSkill(Base_declarative):
+    __tablename__ = "jobadskill"
+    JobAdID = Column(Integer, primary_key=True)
+    SkillID = Column(Integer, primary_key=True)

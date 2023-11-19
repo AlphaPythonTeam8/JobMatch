@@ -8,7 +8,7 @@ from data.database import get_db
 from data.schemas import CompanyBase, CompanyRegistration
 from services import company_services
 
-companies_router = APIRouter(prefix='/companies')
+companies_router = APIRouter(prefix='/companies', tags=['Companies'])
 
 
 @companies_router.post('/register', response_model=CompanyBase)
@@ -17,11 +17,6 @@ def register(company: CompanyRegistration, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     return company_services.register(user=company, db=db)
-
-
-@companies_router.post('/{id}')
-def create_jobad(id: int):
-    pass
 
 
 @companies_router.get('/{id}')

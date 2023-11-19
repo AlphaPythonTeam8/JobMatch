@@ -49,3 +49,5 @@ def update_info(id: int, profile: schemas.Company, db: Session):
     profile_query.update(profile.model_dump(), synchronize_session=False)
     db.commit()
     return profile_query.first()
+
+
