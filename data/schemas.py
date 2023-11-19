@@ -82,14 +82,28 @@ class CompanyAd(BaseModel):
     CompanyAdRequirement: str | None = None
 
 
-class CompanyAdResponse(BaseModel):
+class CompanyAdsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    FirstName: str
-    LastName: str
     SalaryRange: str
     MotivationDescription: str
     Location: str
     Skills: list
     Status: str | None = None
 
+
+class CompanyAdResponse(CompanyAdsResponse):
+    FirstName: str
+    LastName: str
+
+    # @classmethod
+    # def from_query(cls, FirstName, LastName, SalaryRange, MotivationDescription, Location, Skills, Status):
+    #     return cls(
+    #         FirstName=FirstName,
+    #         LastName=LastName,
+    #         SalaryRange=SalaryRange,
+    #         MotivationDescription=MotivationDescription,
+    #         Location=Location,
+    #         Skills=Skills,
+    #         Status=Status
+    #     )
 

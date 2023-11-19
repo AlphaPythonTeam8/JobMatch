@@ -42,9 +42,8 @@ def create_ad(id: int, ad: CompanyAd, db: Session = Depends(get_db)):
 
 
 @professionals_router.get('/{id}/ads')
-def get_all_ads(id: int):
-    # Will include options to search/filter the ads
-    pass
+def get_all_ads(id: int, db: Session = Depends(get_db)):
+    return professional_services.get_all_ads(id, db)
 
 
 @professionals_router.get('/{id}/{ad_id}')

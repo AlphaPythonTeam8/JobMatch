@@ -2,7 +2,7 @@ from data import schemas, models
 from sqlalchemy.orm import Session
 import sqlalchemy.exc
 
-from data.schemas import CompanyAdResponse
+from data.schemas import CompanyAdResponse, CompanyAdsResponse
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
@@ -14,7 +14,27 @@ def register(user: schemas.ProfessionalRegistration, db: Session):
 
 
 def get_all_ads(id: int, db: Session):
-    pass
+    res = []
+    ads = db.query(models.CompanyAd).join(
+        models.CompanyAdSkill, models.CompanyAd.CompanyAdID==models.CompanyAdSkill.CompanyAdID).join(
+        models.Skill, models.CompanyAdSkill.SkillID==models.Skill.SkillID
+    ).filter(models.CompanyAd.ProfessionalID==id).all()
+    for ad in ads:
+        skills = db.query(models.Skill.Description, models.CompanyAdSkill.Level).join(
+            models.CompanyAdSkill, models.CompanyAdSkill.SkillID==models.Skill.SkillID).join(
+            models.CompanyAd, models.CompanyAd.CompanyAdID==models.CompanyAdSkill.CompanyAdID).filter(
+            models.CompanyAd.CompanyAdID==ad.CompanyAdID).all()
+        # print([' - '.join(skill) for skill in skills])
+        res.append(CompanyAdsResponse(
+            FirstName='Test',
+            LastName='Test',
+            SalaryRange=ad.SalaryRange,
+            MotivationDescription=ad.MotivationDescription,
+            Location=ad.Location,
+            Skills=[' - '.join(skill) for skill in skills],
+            Status=ad.Status
+        ))
+    return res
 
 
 def get_ad(id: int):
