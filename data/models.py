@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column
+from sqlalchemy import Integer, Column, String
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import declarative_base
 

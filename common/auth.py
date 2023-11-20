@@ -8,7 +8,7 @@ from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 auth_router = APIRouter(tags=['CompanyAuthentication'])
 
 
-@auth_router.post('/login')
+@auth_router.post('/login', response_model=schemas.Token)
 async def company_login(company_credentials: OAuth2PasswordRequestForm = Depends(),
                         db: Session = Depends(database.get_db)):
     company = db.query(models.Company).filter(models.Company.Username == company_credentials.username).first()

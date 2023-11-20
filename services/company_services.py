@@ -39,8 +39,8 @@ def get_company_by_username(db: Session, username: str):
     return db.query(models.Company).filter(models.Company.Username == username).first()
 
 
-def get_company_by_id(id: int, db: Session):
-    company_profile = db.query(models.Company).filter(models.Company.CompanyID == id).first()
+def get_company_by_id(db: Session, company_id: int):
+    company_profile = db.query(models.Company).filter(models.Company.CompanyID == company_id).first()
     return company_profile
 
 

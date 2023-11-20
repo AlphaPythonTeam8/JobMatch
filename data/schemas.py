@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl
@@ -68,9 +69,9 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class TokenData(BaseModel):
-    id: Optional[str] = None
 
+class TokenData(BaseModel):
+    id: Optional[int] = None
 
 
 class CompanyAd(BaseModel):
@@ -108,8 +109,7 @@ class CompanyAdResponse(CompanyAdsResponse):
     #     )
 
 
-
-class JobAd:
+class JobAd(BaseModel):
     SalaryRange: str
     JobDescription: str
     Location: str
@@ -122,4 +122,4 @@ class JobAd:
 
 class JobAdResponse(BaseModel):
     JobAdID: int
-    CreatedAt: datetime
+    CreatedAt: datetime = None
