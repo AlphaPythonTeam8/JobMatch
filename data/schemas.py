@@ -38,10 +38,15 @@ class ProfessionalRegistration(ProfessionalBase):
 
 
 class Professional(ProfessionalBase):  # TODO - Add the photo
-    BriefSummary: str | None
-    Location: str | None
-    Status: str
-    Contact: str | None
+    BriefSummary: str | None = Field(min_length=5, max_length=255)
+    Location: str | None = Field(min_length=2, max_length=50)
+    Status: str | None
+    PhotoURL: HttpUrl | None = None
+    CVURL: HttpUrl | None = None
+    Contact: str | None = Field(min_length=5, max_length=100)
+
+class ProfessionalResponse(Professional):
+    ActiveAds: int
 
 
 class CompanyBase(BaseModel):
@@ -90,7 +95,7 @@ class CompanyAd(BaseModel):
     MotivationDescription: str
     Location: str
     Status: str | None = None
-    Skills: str
+    Skills: str | list
     CompanyAdRequirement: str | None = None
 
 
@@ -101,7 +106,8 @@ class CompanyAdsResponse(BaseModel):
     MotivationDescription: str
     Location: str
     Skills: list
-    Status: str | None = None
+    Status: str | None
+    CompanyAdRequirement: str | None
 
 
 class CompanyAdResponse(BaseModel):
@@ -113,8 +119,10 @@ class CompanyAdResponse(BaseModel):
     MotivationDescription: str
     Location: str
     Skills: list
-    Status: str | None = None
-
+    Status: str
+    CompanyAdRequirement: str | None
+    CreatedAt: datetime
+    UpdatedAt: datetime
 
 class JobAd(BaseModel):
     SalaryRange: str
@@ -130,3 +138,5 @@ class JobAd(BaseModel):
 class JobAdResponse(BaseModel):
     JobAdID: int
     CreatedAt: datetime = None
+
+

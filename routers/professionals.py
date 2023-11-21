@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-
 from common import oauth2
 from common.hashing import hash_password
-from data.schemas import ProfessionalRegistration, ProfessionalBase, Professional, CompanyAd, CompanyAdResponse
+from data.schemas import ProfessionalRegistration, ProfessionalBase, Professional, CompanyAd, CompanyAdResponse, \
+    ProfessionalResponse
 from services import professional_services
 from data.database import get_db
 from sqlalchemy.orm import Session
 
-from services.professional_services import ad_exists
 
 professionals_router = APIRouter(prefix='/professionals', tags=['Professionals'])
 
@@ -21,30 +20,23 @@ def register(user: ProfessionalRegistration, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already registered")
     return professional_services.register(user=user, db=db)
 
-@professionals_router.get('/profile', response_model=Professional)
+
+@professionals_router.get('/profile', response_model=ProfessionalResponse)
 def get_personal_info(user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
-    profile = professional_services.get_pro_by_id(id=user_id.id, db=db)
-    if not profile:
-        raise HTTPException(status_code=404, detail=f'Professional profile with id {id} does not exist.')
+    profile = professional_services.get_pro(id=user_id.id, db=db)
     return profile
 
 
-@professionals_router.put('/update-info', response_model=Professional)
+@professionals_router.put('/update-info', response_model=ProfessionalResponse)
 def update_info(
         updated_profile: Professional,
         user_id=Depends(oauth2.get_current_professional),
         db: Session = Depends(get_db)):
-    profile = professional_services.get_pro_by_id(id=user_id.id, db=db)
-    if not profile:
-        raise HTTPException(status_code=404, detail=f'Professional profile with id {id} does not exist.')
     return professional_services.update_info(user_id.id, updated_profile, db)
 
 
 @professionals_router.post('/create-ad')
 def create_ad(ad: CompanyAd, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
-    profile = professional_services.get_pro_by_id(id=user_id.id, db=db)
-    if not profile:
-        raise HTTPException(status_code=404, detail=f'Professional profile with id {user_id.id} does not exist.')
     skills = ad.Skills.split(', ')
     professional_services.add_skills_to_db(skills, db)
     return professional_services.create_ad(user_id.id, skills, ad, db)
@@ -55,17 +47,24 @@ def get_all_ads(user_id=Depends(oauth2.get_current_professional), db: Session = 
     return professional_services.get_all_ads(user_id.id, db)
 
 
-@professionals_router.get('/{ad_id}')
+@professionals_router.get('/{ad_id}', response_model=CompanyAdResponse)
 def get_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
-    if not ad_exists(ad_id, db):
+    ad = professional_services.get_ad(ad_id, db)
+    if not ad:
         raise HTTPException(status_code=404, detail=f'Company ad with id {ad_id} does not exist')
+    if not ad.ProfessionalID == user_id.id:
+        raise HTTPException(status_code=403)
+    return professional_services.return_ad(ad, db)
 
 
-
-@professionals_router.put('/{id}/{ad_id}')
-def edit_ad(id: int, ad_id: int):
-    # Check if the ad exists first
-    pass
+@professionals_router.put('/update_ad/{ad_id}')
+def edit_ad(new_ad: CompanyAd, ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+    ad = professional_services.get_ad(ad_id, db)
+    if not ad:
+        raise HTTPException(status_code=404, detail=f'Company ad with id {ad_id} does not exist')
+    if not ad.ProfessionalID == user_id.id:
+        raise HTTPException(status_code=403)
+    return professional_services.edit_ad(new_ad, ad_id, db)
 
 
 @professionals_router.patch('/{id}/{ad_id}')
