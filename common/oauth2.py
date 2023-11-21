@@ -56,3 +56,23 @@ def get_current_company(token: str = Depends(oauth2_scheme), db: Session = Depen
     company_id = token_data.id
     company = db.query(models.Company).filter(models.Company.CompanyID == company_id).first()
     return company
+
+
+def verify_professional_token(token: str, credentials_exception):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        id: int = payload.get("professional_id")
+        if not id:
+            raise credentials_exception
+        token_data = schemas.TokenData(id=id)
+    except JWTError:
+        raise credentials_exception
+
+    return token_data
+
+
+def get_current_professional(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                          detail="Could not validate credentials",
+                                          headers={"WWW-Authenticate": "Bearer"})
+    return verify_professional_token(token, credentials_exception)

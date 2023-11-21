@@ -16,19 +16,18 @@ def register(user: schemas.ProfessionalRegistration, db: Session):
 def get_all_ads(id: int, db: Session):
     res = []
     ads = db.query(models.CompanyAd).join(
-        models.CompanyAdSkill, models.CompanyAd.CompanyAdID==models.CompanyAdSkill.CompanyAdID).join(
-        models.Skill, models.CompanyAdSkill.SkillID==models.Skill.SkillID
-    ).filter(models.CompanyAd.ProfessionalID==id).all()
+        models.CompanyAdSkill, models.CompanyAd.CompanyAdID == models.CompanyAdSkill.CompanyAdID).join(
+        models.Skill, models.CompanyAdSkill.SkillID == models.Skill.SkillID
+    ).filter(models.CompanyAd.ProfessionalID == id).all()
     for ad in ads:
         skills = db.query(models.Skill.Description, models.CompanyAdSkill.Level).join(
-            models.CompanyAdSkill, models.CompanyAdSkill.SkillID==models.Skill.SkillID).join(
-            models.CompanyAd, models.CompanyAd.CompanyAdID==models.CompanyAdSkill.CompanyAdID).filter(
-            models.CompanyAd.CompanyAdID==ad.CompanyAdID).all()
+            models.CompanyAdSkill, models.CompanyAdSkill.SkillID == models.Skill.SkillID).join(
+            models.CompanyAd, models.CompanyAd.CompanyAdID == models.CompanyAdSkill.CompanyAdID).filter(
+            models.CompanyAd.CompanyAdID == ad.CompanyAdID).all()
         # print([' - '.join(skill) for skill in skills])
         res.append(CompanyAdsResponse(
-            FirstName='Test',
-            LastName='Test',
-            SalaryRange=ad.SalaryRange,
+            BottomSalary=ad.BottomSalary,
+            TopSalary=ad.TopSalary,
             MotivationDescription=ad.MotivationDescription,
             Location=ad.Location,
             Skills=[' - '.join(skill) for skill in skills],
@@ -50,7 +49,7 @@ def set_main_ad(id: int):
 
 
 def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
-    new_ad = models.CompanyAd(ProfessionalID=id, SalaryRange=ad.SalaryRange,
+    new_ad = models.CompanyAd(ProfessionalID=id, BottomSalary=ad.BottomSalary, TopSalary=ad.TopSalary,
                               MotivationDescription=ad.MotivationDescription, Location=ad.Location)
     db.add(new_ad)
     db.commit()
@@ -61,7 +60,8 @@ def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
     return CompanyAdResponse(
         FirstName=names.FirstName,
         LastName=names.LastName,
-        SalaryRange=ad.SalaryRange,
+        BottomSalary=ad.BottomSalary,
+        TopSalary=ad.TopSalary,
         MotivationDescription=ad.MotivationDescription,
         Location=ad.Location,
         Skills=skills,
@@ -103,3 +103,7 @@ def add_skills_to_ad(ad_id: int, skills, db: Session):
         skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
         db.add(models.CompanyAdSkill(CompanyAdID=ad, SkillID=skill_id, Level=level))
         db.commit()
+
+
+def ad_exists(ad_id: int, db: Session):
+    pass

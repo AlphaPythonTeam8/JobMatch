@@ -12,6 +12,16 @@ class ProfessionalBase(BaseModel):
     Username: str = Field(pattern=r'^\w{2,30}$')
     FirstName: str = Field(pattern=r'^[a-zA-Z]{2,30}$')
     LastName: str = Field(pattern=r'^[a-zA-Z]{2,30}$')
+    ProfessionalEmail: str
+
+    @field_validator('ProfessionalEmail')
+    @classmethod
+    def validate_emial(cls, email: str):
+        pattern = '([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+        if re.match(pattern, email):
+            return email
+        else:
+            raise ValueError('Email format is incorrect.')
 
 
 class ProfessionalRegistration(ProfessionalBase):
@@ -75,7 +85,8 @@ class TokenData(BaseModel):
 
 
 class CompanyAd(BaseModel):
-    SalaryRange: str
+    BottomSalary: int | None
+    TopSalary: int | None
     MotivationDescription: str
     Location: str
     Status: str | None = None
@@ -85,28 +96,24 @@ class CompanyAd(BaseModel):
 
 class CompanyAdsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    SalaryRange: str
+    BottomSalary: int | None
+    TopSalary: int | None
     MotivationDescription: str
     Location: str
     Skills: list
     Status: str | None = None
 
 
-class CompanyAdResponse(CompanyAdsResponse):
+class CompanyAdResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     FirstName: str
     LastName: str
-
-    # @classmethod
-    # def from_query(cls, FirstName, LastName, SalaryRange, MotivationDescription, Location, Skills, Status):
-    #     return cls(
-    #         FirstName=FirstName,
-    #         LastName=LastName,
-    #         SalaryRange=SalaryRange,
-    #         MotivationDescription=MotivationDescription,
-    #         Location=Location,
-    #         Skills=Skills,
-    #         Status=Status
-    #     )
+    BottomSalary: int | None
+    TopSalary: int | None
+    MotivationDescription: str
+    Location: str
+    Skills: list
+    Status: str | None = None
 
 
 class JobAd(BaseModel):
