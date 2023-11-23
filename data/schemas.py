@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl
+from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl, EmailStr
 
 from data.models import Skill
 
@@ -12,7 +12,7 @@ class ProfessionalBase(BaseModel):
     Username: str = Field(pattern=r'^\w{2,30}$')
     FirstName: str = Field(pattern=r'^[a-zA-Z]{2,30}$')
     LastName: str = Field(pattern=r'^[a-zA-Z]{2,30}$')
-    ProfessionalEmail: str
+    ProfessionalEmail: EmailStr
 
     @field_validator('ProfessionalEmail')
     @classmethod
@@ -37,7 +37,7 @@ class ProfessionalRegistration(ProfessionalBase):
             raise ValueError('Password not strong enough')
 
 
-class Professional(ProfessionalBase):  # TODO - Add the photo
+class Professional(ProfessionalBase):
     BriefSummary: str | None = Field(min_length=5, max_length=255)
     Location: str | None = Field(min_length=2, max_length=50)
     Status: str | None
@@ -108,6 +108,8 @@ class CompanyAdsResponse(BaseModel):
     Skills: list
     Status: str | None
     CompanyAdRequirement: str | None
+    CreatedAt: datetime
+    UpdatedAt: datetime
 
 
 class CompanyAdResponse(BaseModel):
@@ -140,3 +142,10 @@ class JobAdResponse(BaseModel):
     CreatedAt: datetime = None
 
 
+class ProfessionalUpdate(BaseModel):
+    BriefSummary: str | None = Field(min_length=5, max_length=255)
+    Location: str | None = Field(min_length=2, max_length=50)
+    Status: str | None
+    PhotoURL: HttpUrl | None = None
+    CVURL: HttpUrl | None = None
+    Contact: str | None = Field(min_length=5, max_length=100)

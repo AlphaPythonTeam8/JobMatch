@@ -12,12 +12,16 @@ def register(user: schemas.ProfessionalRegistration, db: Session):
     return db_user
 
 
-def get_all_ads(id: int, db: Session):
+def get_all_ads(id: int, sort, db: Session):
     res = []
+    if sort == 'asc':
+        order_query = models.CompanyAd.UpdatedAt.asc()
+    else:
+        order_query = models.CompanyAd.UpdatedAt.desc()
     ads = db.query(models.CompanyAd).join(
         models.CompanyAdSkill, models.CompanyAd.CompanyAdID == models.CompanyAdSkill.CompanyAdID).join(
         models.Skill, models.CompanyAdSkill.SkillID == models.Skill.SkillID
-    ).filter(models.CompanyAd.ProfessionalID == id).all()
+    ).filter(models.CompanyAd.ProfessionalID == id).order_by(order_query)
     for ad in ads:
         skills = db.query(models.Skill.Description, models.CompanyAdSkill.Level).join(
             models.CompanyAdSkill, models.CompanyAdSkill.SkillID == models.Skill.SkillID).join(
@@ -30,7 +34,9 @@ def get_all_ads(id: int, db: Session):
             Location=ad.Location,
             Skills=[' - '.join(skill) for skill in skills],
             Status=ad.Status,
-            CompanyAdRequirement=ad.CompanyAdRequirement
+            CompanyAdRequirement=ad.CompanyAdRequirement,
+            CreatedAt=ad.CreatedAt,
+            UpdatedAt=ad.UpdatedAt
         ))
     return res
 
@@ -136,7 +142,7 @@ def get_pro(id: int, db: Session):
     )
 
 
-def update_info(id: int, profile: schemas.Professional, db: Session):
+def update_info(id: int, profile: schemas.ProfessionalUpdate, db: Session):
     profile_query = db.query(models.Professional).filter(models.Professional.ProfessionalID == id)
     profile_query.update(profile.model_dump(), synchronize_session=False)
     db.commit()

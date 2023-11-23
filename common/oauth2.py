@@ -12,7 +12,7 @@ from data.database import get_db
 load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login', scheme_name='Company Authorization')
-oauth2_scheme_pro = OAuth2PasswordBearer(tokenUrl='professional_login', scheme_name='Professional Authorization')
+oauth2_scheme_pro = OAuth2PasswordBearer(tokenUrl='professional-login', scheme_name='Professional Authorization')
 
 # pip install python-jose
 # SECRET_KEY - imported from .env
