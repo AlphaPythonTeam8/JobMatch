@@ -15,7 +15,7 @@ app.include_router(auth_router)
 app.include_router(professional_auth_router)
 app.include_router(searching_router)
 
-# if __name__ == "__main__":
-#     uvicorn.run(app, host='127.0.0.1', port=8000)
-# app.include_router(job_ad_router)
+if __name__ == "__main__":
+    uvicorn.run(app, host='127.0.0.1', port=8000)
+app.include_router(job_ad_router)
 
