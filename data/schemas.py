@@ -16,7 +16,7 @@ class ProfessionalBase(BaseModel):
 
     @field_validator('ProfessionalEmail')
     @classmethod
-    def validate_emial(cls, email: str):
+    def validate_email(cls, email: str):
         pattern = '([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
         if re.match(pattern, email):
             return email
@@ -45,6 +45,7 @@ class Professional(ProfessionalBase):  # TODO - Add the photo
     CVURL: HttpUrl | None = None
     Contact: str | None = Field(min_length=5, max_length=100)
 
+
 class ProfessionalResponse(Professional):
     ActiveAds: int
 
@@ -53,6 +54,16 @@ class CompanyBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     Username: str = Field(pattern=r'^\w{2,30}$')
     CompanyName: str = Field(pattern=r'^[a-zA-Z]{2,30}$')
+    Email: str
+
+    @field_validator('Email')
+    @classmethod
+    def validate_email(cls, email: str):
+        pattern = '([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+        if re.match(pattern, email):
+            return email
+        else:
+            raise ValueError('Email format is incorrect.')
 
 
 class CompanyRegistration(CompanyBase):
@@ -73,6 +84,10 @@ class Company(CompanyBase):
     Location: str | None = Field(None, min_length=5, max_length=255)
     PictureURL: HttpUrl | None
     Contact: str | None = Field(None, min_length=5, max_length=255)
+
+
+class CompanyResponse(Company):
+    ActiveAds = int
 
 
 class CompanyLogin(BaseModel):
@@ -124,19 +139,17 @@ class CompanyAdResponse(BaseModel):
     CreatedAt: datetime
     UpdatedAt: datetime
 
+
 class JobAd(BaseModel):
-    SalaryRange: str
+    BottomSalary: int | None
+    TopSalary: int | None
     JobDescription: str
     Location: str
     Status: str | None = None
-    JobRequirement: str
     Skills: str
-    CreatedAt: datetime = None
-    UpdatedAt: datetime = None
 
 
-class JobAdResponse(BaseModel):
+class JobAdResponse(JobAd):
     JobAdID: int
     CreatedAt: datetime = None
-
-
+    UpdatedAt: datetime = None

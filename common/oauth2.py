@@ -1,3 +1,6 @@
+import uuid
+from uuid import uuid4
+
 from fastapi import Depends, status, HTTPException
 from jose import JWTError, jwt
 from dotenv import load_dotenv
@@ -23,6 +26,8 @@ SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_TIME = 30
 
+def generate_verification_token():
+    return str(uuid.uuid4())
 
 def create_access_token(data: dict):
     to_encode = data.copy()
