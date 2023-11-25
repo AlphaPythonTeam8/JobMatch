@@ -28,7 +28,7 @@ def get_personal_info(user_id=Depends(oauth2.get_current_professional), db: Sess
     return profile
 
 
-@professionals_router.put('/update-info', response_model=ProfessionalResponse)
+@professionals_router.patch('/update-info', response_model=ProfessionalResponse)
 def update_info(
         updated_profile: ProfessionalUpdate,
         user_id=Depends(oauth2.get_current_professional),

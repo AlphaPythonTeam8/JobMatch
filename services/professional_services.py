@@ -65,9 +65,12 @@ def edit_ad(new_ad, id: int, db: Session):
     add_skills_to_db(skills, db)
     add_skills_to_ad(id, skills, db)
     ad_query = db.query(models.CompanyAd).filter(models.CompanyAd.CompanyAdID == id)
-    ad_query.update(dict(BottomSalary=new_ad.BottomSalary, TopSalary=new_ad.TopSalary,
-                         MotivationDescription=new_ad.MotivationDescription, Location=new_ad.Location,
-                         Status=new_ad.Status), synchronize_session=False)
+    ad_query.update(dict(BottomSalary=new_ad.BottomSalary,
+                         TopSalary=new_ad.TopSalary,
+                         MotivationDescription=new_ad.MotivationDescription,
+                         Location=new_ad.Location,
+                         Status=new_ad.Status,
+                         CompanyAdRequirement=new_ad.CompanyAdRequirement), synchronize_session=False)
     db.commit()
     new_ad = ad_query.first()
     names = get_names(db.query(models.CompanyAd.ProfessionalID).filter(models.CompanyAd.CompanyAdID==id).first()[0], db)
@@ -94,8 +97,12 @@ def set_main_ad(ad_id: int, user_id: int, db: Session):
 
 
 def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
-    new_ad = models.CompanyAd(ProfessionalID=id, BottomSalary=ad.BottomSalary, TopSalary=ad.TopSalary,
-                              MotivationDescription=ad.MotivationDescription, Location=ad.Location)
+    new_ad = models.CompanyAd(ProfessionalID=id,
+                              BottomSalary=ad.BottomSalary,
+                              TopSalary=ad.TopSalary,
+                              MotivationDescription=ad.MotivationDescription,
+                              Location=ad.Location,
+                              CompanyAdRequirement=ad.CompanyAdRequirement)
     db.add(new_ad)
     db.flush()
     db.commit()
@@ -134,6 +141,8 @@ def get_pro(id: int, db: Session):
         BriefSummary=profile.BriefSummary,
         Location=profile.Location,
         Status=profile.Status,
+        PhotoURL=profile.PhotoURL,
+        CVURL=profile.CVURL,
         Contact=profile.Contact,
         ActiveAds=count_ads
     )
@@ -154,6 +163,8 @@ def update_info(id: int, profile: schemas.ProfessionalUpdate, db: Session):
         BriefSummary=profile.BriefSummary,
         Location=profile.Location,
         Status=profile.Status,
+        PhotoURL=profile.PhotoURL,
+        CVURL=profile.CVURL,
         Contact=profile.Contact,
         ActiveAds=count_ads
     )
@@ -171,12 +182,11 @@ def add_skills_to_db(skills, db: Session):
 
 
 def add_skills_to_ad(ad_id: int, skills, db: Session):
-    ad = db.query(models.CompanyAd.CompanyAdID).filter(models.CompanyAd.CompanyAdID == ad_id)
     for data in skills:
         try:
             skill, level = data.split(' - ')
             skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
-            db.add(models.CompanyAdSkill(CompanyAdID=ad, SkillID=skill_id, Level=level))
+            db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
             db.commit()
         except sqlalchemy.exc.IntegrityError:
             db.rollback()

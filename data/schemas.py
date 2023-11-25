@@ -41,12 +41,12 @@ class Professional(ProfessionalBase):
     BriefSummary: str | None = Field(min_length=5, max_length=255)
     Location: str | None = Field(min_length=2, max_length=50)
     Status: str | None
-    PhotoURL: HttpUrl | None = None
-    CVURL: HttpUrl | None = None
     Contact: str | None = Field(min_length=5, max_length=100)
 
 class ProfessionalResponse(Professional):
     ActiveAds: int
+    PhotoURL: str | None
+    CVURL: str | None
 
 
 class CompanyBase(BaseModel):
@@ -160,9 +160,9 @@ class JobAdResponse(JobAd):
 
 
 class ProfessionalUpdate(BaseModel):
-    BriefSummary: str | None = Field(min_length=5, max_length=255)
-    Location: str | None = Field(min_length=2, max_length=50)
-    Status: str | None
-    PhotoURL: HttpUrl | None = None
-    CVURL: HttpUrl | None = None
-    Contact: str | None = Field(min_length=5, max_length=100)
+    BriefSummary: str | None = Field(min_length=5, max_length=255, default=None)
+    Location: str | None = Field(min_length=2, max_length=50, default=None)
+    Status: str | None = 'Active'
+    PhotoURL: str | None = None
+    CVURL: str | None = None
+    Contact: str | None = Field(min_length=5, max_length=100, default=None)
