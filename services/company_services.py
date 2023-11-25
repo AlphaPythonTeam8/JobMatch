@@ -13,13 +13,20 @@ def register(user: schemas.CompanyRegistration, db: Session):
     verification_token = generate_verification_token()
 
     # Create the company user with the unverified email
-    db_user = models.Company(**user.dict(), EmailVerified=False, VerificationToken=verification_token)
+    db_user = models.Company(
+        Username = user.Username,
+        CompanyName = user.CompanyName,
+        Email = user.Email,
+        Password = user.Password,
+        VerificationToken = verification_token,
+        EmailVerified = False
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
     # Send verification email
-    send_verification_email(db_user.Email, verification_token)
+    # send_verification_email(db_user.Email, verification_token)
 
     return db_user
 

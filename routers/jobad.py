@@ -14,12 +14,12 @@ job_ad_router = APIRouter(
 
 @job_ad_router.post('/create-job_ad', response_model=JobAdResponse)
 def create_ad(ad: JobAd, db: Session = Depends(get_db), company_id: int = Depends(get_current_company)):
-    company_profile = company_services.get_company_by_id(company_id=company_id, db=db)
-    if not company_profile:
-        raise HTTPException(status_code=404, detail=f'Company profile with id {company_id} does not exist.')
+    # company_profile = company_services.get_company_by_id(db=db, company_id=company_id)
+    # if not company_profile:
+    #     raise HTTPException(status_code=404, detail=f'Company profile with id {company_id} does not exist.')
     skills = ad.Skills.split(', ')
     professional_services.add_skills_to_db(skills, db)
-    new_ad = jobad_services.create_job_ad(id, ad, db)
+    new_ad = jobad_services.create_job_ad(id, skills, ad, db)
     return JobAdResponse(JobAdID=new_ad.JobAdID, CreatedAt=new_ad.CreatedAt)
 
 

@@ -64,9 +64,16 @@ class CompanyBase(BaseModel):
         else:
             raise ValueError('Email format is incorrect.')
 
+class Company(CompanyBase):
+    Description: str | None
+    Location: str | None = Field(None, min_length=5, max_length=255)
+    PictureURL: HttpUrl | None
+    Contact: str | None = Field(None, min_length=5, max_length=255)
 
 class CompanyRegistration(CompanyBase):
     Password: str
+    VerificationToken: str
+    EmailVerified: bool = False
 
     @field_validator('Password')
     @classmethod
@@ -78,15 +85,8 @@ class CompanyRegistration(CompanyBase):
             raise ValueError('Password not strong enough')
 
 
-class Company(CompanyBase):
-    Description: str | None
-    Location: str | None = Field(None, min_length=5, max_length=255)
-    PictureURL: HttpUrl | None
-    Contact: str | None = Field(None, min_length=5, max_length=255)
-
-
 class CompanyResponse(Company):
-    ActiveAds = int
+    ActiveAds : int
 
 
 class CompanyLogin(BaseModel):
