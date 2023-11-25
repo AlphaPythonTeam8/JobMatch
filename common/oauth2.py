@@ -14,7 +14,8 @@ from data.database import get_db
 
 load_dotenv()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login', scheme_name='Company Authorization')
+oauth2_scheme_pro = OAuth2PasswordBearer(tokenUrl='professional-login', scheme_name='Professional Authorization')
 
 # pip install python-jose
 # SECRET_KEY - imported from .env
@@ -76,7 +77,7 @@ def verify_professional_token(token: str, credentials_exception):
     return token_data
 
 
-def get_current_professional(token: str = Depends(oauth2_scheme)):
+def get_current_professional(token: str = Depends(oauth2_scheme_pro)):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                           detail="Could not validate credentials",
                                           headers={"WWW-Authenticate": "Bearer"})

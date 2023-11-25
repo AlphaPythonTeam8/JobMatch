@@ -27,7 +27,7 @@ async def company_login(company_credentials: OAuth2PasswordRequestForm = Depends
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-professional_auth_router = APIRouter(prefix='/professional_login', tags=['ProfessionalAuthentication'])
+professional_auth_router = APIRouter(prefix='/professional-login', tags=['ProfessionalAuthentication'])
 
 
 @professional_auth_router.post('/')

@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import LimitOffsetPage, paginate
 from common import oauth2
 from common.hashing import hash_password
-from data.schemas import ProfessionalRegistration, ProfessionalBase, Professional, CompanyAd, CompanyAdResponse, \
-    ProfessionalResponse
+from data.schemas import ProfessionalRegistration, ProfessionalBase,CompanyAd, CompanyAdResponse, \
+    ProfessionalResponse, ProfessionalUpdate
 from services import professional_services
 from data.database import get_db
 from sqlalchemy.orm import Session
@@ -29,7 +30,7 @@ def get_personal_info(user_id=Depends(oauth2.get_current_professional), db: Sess
 
 @professionals_router.put('/update-info', response_model=ProfessionalResponse)
 def update_info(
-        updated_profile: Professional,
+        updated_profile: ProfessionalUpdate,
         user_id=Depends(oauth2.get_current_professional),
         db: Session = Depends(get_db)):
     return professional_services.update_info(user_id.id, updated_profile, db)
@@ -43,8 +44,9 @@ def create_ad(ad: CompanyAd, user_id=Depends(oauth2.get_current_professional), d
 
 
 @professionals_router.get('/ads')
-def get_all_ads(user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
-    return professional_services.get_all_ads(user_id.id, db)
+def get_all_ads(sort: str | None = None, user_id=Depends(oauth2.get_current_professional),
+                db: Session = Depends(get_db)) -> LimitOffsetPage:
+    return paginate(professional_services.get_all_ads(user_id.id, sort, db),)
 
 
 @professionals_router.get('/{ad_id}', response_model=CompanyAdResponse)
@@ -67,10 +69,12 @@ def edit_ad(new_ad: CompanyAd, ad_id: int, user_id=Depends(oauth2.get_current_pr
     return professional_services.edit_ad(new_ad, ad_id, db)
 
 
-@professionals_router.patch('/{id}/{ad_id}')
-def set_main_ad(id: int, ad_id: int):
-    # Maybe first check if there is not already set main ad
-    pass
+@professionals_router.patch('/main-ad/{ad_id}')
+def set_main_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+    ad = professional_services.get_ad(ad_id, db)
+    if not ad or not ad.ProfessionalID == user_id.id:
+        raise HTTPException(status_code=404)
+    return professional_services.set_main_ad(ad_id, user_id.id, db)
 
 
 
