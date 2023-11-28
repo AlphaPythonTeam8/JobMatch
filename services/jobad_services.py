@@ -14,45 +14,71 @@ from services.professional_services import add_skills_to_db, add_skills_to_ad
 
 #     add_skills_to_job_ad(new_job_ad.JobAdID, skills, db)
 #     return new_job_ad
+# def create_job_ad(id: int, skills, ad: schemas.JobAd, db: Session):
+#     existing_ad = db.query(models.JobAd).filter(
+#         models.JobAd.CompanyID == id,
+#         models.JobAd.BottomSalary == ad.BottomSalary,
+#         models.JobAd.TopSalary == ad.TopSalary,
+#         models.JobAd.JobDescription == ad.JobDescription,
+#         models.JobAd.Location == ad.Location
+#     ).first()
+
+#     if existing_ad:
+#         # If an identical job ad already exists, return the existing one
+#         return JobAdResponse(
+#             BottomSalary=existing_ad.BottomSalary,
+#             TopSalary=existing_ad.TopSalary,
+#             JobDescription=existing_ad.JobDescription,
+#             Location=existing_ad.Location,
+#             Status=existing_ad.Status,
+#             Skills=skills,
+#             CreatedAt=existing_ad.CreatedAt,
+#             UpdatedAt=existing_ad.UpdatedAt
+#         )
+
+#     # If no identical job ad exists, proceed with creating a new one
+#     new_ad = models.JobAd(
+#         CompanyID=id,
+#         BottomSalary=ad.BottomSalary,
+#         TopSalary=ad.TopSalary,
+#         JobDescription=ad.JobDescription,
+#         Location=ad.Location
+#     )
+
+#     db.add(new_ad)
+#     db.flush()
+#     db.commit()
+#     db.refresh(new_ad)
+#     add_skills_to_ad(new_ad.JobAdID, skills, db)
+#     ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == new_ad.JobAdID).first()
+#     names = get_names(id, db) # Useless :)))
+#     return JobAdResponse(
+#         BottomSalary=ad.BottomSalary,
+#         TopSalary=ad.TopSalary,
+#         JobDescription=ad.JobDescription,
+#         Location=ad.Location,
+#         Status=ad.Status,
+#         Skills=skills,
+#         CreatedAt=ad.CreatedAt,
+#         UpdatedAt=ad.UpdatedAt
+#     )
+# ^^^^^^^ Тоя код не позволява да има абсолютно едни и същи job ad-ове 
 def create_job_ad(id: int, skills, ad: schemas.JobAd, db: Session):
-    existing_ad = db.query(models.JobAd).filter(
-        models.JobAd.CompanyID == id,
-        models.JobAd.BottomSalary == ad.BottomSalary,
-        models.JobAd.TopSalary == ad.TopSalary,
-        models.JobAd.JobDescription == ad.JobDescription,
-        models.JobAd.Location == ad.Location
-    ).first()
-
-    if existing_ad:
-        # If an identical job ad already exists, return the existing one
-        return JobAdResponse(
-            BottomSalary=existing_ad.BottomSalary,
-            TopSalary=existing_ad.TopSalary,
-            JobDescription=existing_ad.JobDescription,
-            Location=existing_ad.Location,
-            Status=existing_ad.Status,
-            Skills=skills,
-            CreatedAt=existing_ad.CreatedAt,
-            UpdatedAt=existing_ad.UpdatedAt
-        )
-
-    # If no identical job ad exists, proceed with creating a new one
-    new_ad = models.JobAd(
-        CompanyID=id,
-        BottomSalary=ad.BottomSalary,
-        TopSalary=ad.TopSalary,
-        JobDescription=ad.JobDescription,
-        Location=ad.Location
-    )
-
+    new_ad = models.JobAd(CompanyID=id,
+                              BottomSalary=ad.BottomSalary,
+                              TopSalary=ad.TopSalary,
+                              JobDescription=ad.JobDescription,
+                              Location=ad.Location)
     db.add(new_ad)
     db.flush()
     db.commit()
     db.refresh(new_ad)
     add_skills_to_ad(new_ad.JobAdID, skills, db)
-    ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == new_ad.JobAdID).first()
-    names = get_names(id, db) # Useless :)))
+    ad = db.query(models.JobAd).filter(models.JobAd.JobAdID==new_ad.JobAdID).first()
+    names = get_names(id, db)
     return JobAdResponse(
+        # Username=names.Username,
+        # CompanyName=names.CompanyName,
         BottomSalary=ad.BottomSalary,
         TopSalary=ad.TopSalary,
         JobDescription=ad.JobDescription,
