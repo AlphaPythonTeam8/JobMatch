@@ -1,7 +1,7 @@
 from data import schemas, models
 from sqlalchemy.orm import Session
 import sqlalchemy.exc
-from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResponse
+from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResponse, CompanyAdMatchRequest
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
@@ -46,6 +46,7 @@ def get_ad(id: int, db: Session):
 def return_ad(ad, db: Session):
     skills = get_skills(db, ad)
     names = get_names(ad.ProfessionalID, db)
+    match_requests = get_match_requests_for_ad(ad.CompanyAdID, db)
     return CompanyAdResponse(
         FirstName=names.FirstName,
         LastName=names.LastName,
@@ -57,8 +58,15 @@ def return_ad(ad, db: Session):
         Status=ad.Status,
         CreatedAt=ad.CreatedAt,
         UpdatedAt=ad.UpdatedAt,
-        CompanyAdRequirement=ad.CompanyAdRequirement
-        )
+        CompanyAdRequirement=ad.CompanyAdRequirement,
+        MatchRequests=[CompanyAdMatchRequest(
+            CompanyName=match_request.CompanyName,
+            MatchStatus=match_request.MatchStatus,
+            SentAt=match_request.SentAt
+        ) for match_request in match_requests]
+
+    )
+
 
 def edit_ad(new_ad, id: int, db: Session):
     skills = new_ad.Skills.split(', ')
@@ -73,7 +81,8 @@ def edit_ad(new_ad, id: int, db: Session):
                          CompanyAdRequirement=new_ad.CompanyAdRequirement), synchronize_session=False)
     db.commit()
     new_ad = ad_query.first()
-    names = get_names(db.query(models.CompanyAd.ProfessionalID).filter(models.CompanyAd.CompanyAdID==id).first()[0], db)
+    names = get_names(db.query(models.CompanyAd.ProfessionalID).filter(models.CompanyAd.CompanyAdID == id).first()[0],
+                      db)
     return CompanyAdResponse(
         FirstName=names.FirstName,
         LastName=names.LastName,
@@ -82,7 +91,7 @@ def edit_ad(new_ad, id: int, db: Session):
         MotivationDescription=new_ad.MotivationDescription,
         Location=new_ad.Location,
         Status=new_ad.Status,
-        Skills= list(skills),
+        Skills=list(skills),
         CompanyAdRequirement=new_ad.CompanyAdRequirement,
         CreatedAt=new_ad.CreatedAt,
         UpdatedAt=new_ad.UpdatedAt
@@ -90,10 +99,9 @@ def edit_ad(new_ad, id: int, db: Session):
 
 
 def set_main_ad(ad_id: int, user_id: int, db: Session):
-    ad_query = db.query(models.Professional).filter(models.Professional.ProfessionalID==user_id)
+    ad_query = db.query(models.Professional).filter(models.Professional.ProfessionalID == user_id)
     ad_query.update(dict(MainAd=ad_id), synchronize_session=False)
     db.commit()
-
 
 
 def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
@@ -108,7 +116,7 @@ def create_ad(id: int, skills, ad: schemas.CompanyAd, db: Session):
     db.commit()
     db.refresh(new_ad)
     add_skills_to_ad(new_ad.CompanyAdID, skills, db)
-    ad = db.query(models.CompanyAd).filter(models.CompanyAd.CompanyAdID==new_ad.CompanyAdID).first()
+    ad = db.query(models.CompanyAd).filter(models.CompanyAd.CompanyAdID == new_ad.CompanyAdID).first()
     names = get_names(id, db)
     return CompanyAdResponse(
         FirstName=names.FirstName,
@@ -129,10 +137,14 @@ def get_pro_by_username(db: Session, username: str):
     return db.query(models.Professional).filter(models.Professional.Username == username).first()
 
 
+def email_exists(db: Session, email: str):
+    return db.query(models.Professional).filter(models.Professional.ProfessionalEmail == email).first()
+
+
 def get_pro(id: int, db: Session):
     profile = db.query(models.Professional).filter(models.Professional.ProfessionalID == id).first()
     count_ads = db.query(models.CompanyAd).filter(
-        models.CompanyAd.ProfessionalID==id, models.CompanyAd.Status=="Active").count()
+        models.CompanyAd.ProfessionalID == id, models.CompanyAd.Status == "Active").count()
     return ProfessionalResponse(
         Username=profile.Username,
         FirstName=profile.FirstName,
@@ -195,11 +207,17 @@ def add_skills_to_ad(ad_id: int, skills, db: Session):
 
 def get_names(id, db):
     return db.query(models.Professional.FirstName,
-                     models.Professional.LastName).filter(models.Professional.ProfessionalID == id).first()
+                    models.Professional.LastName).filter(models.Professional.ProfessionalID == id).first()
 
 
 def get_skills(db, ad):
     return db.query(models.Skill.Description, models.CompanyAdSkill.Level).join(
-            models.CompanyAdSkill, models.CompanyAdSkill.SkillID == models.Skill.SkillID).join(
-            models.CompanyAd, models.CompanyAd.CompanyAdID == models.CompanyAdSkill.CompanyAdID).filter(
-            models.CompanyAd.CompanyAdID == ad.CompanyAdID).all()
+        models.CompanyAdSkill, models.CompanyAdSkill.SkillID == models.Skill.SkillID).join(
+        models.CompanyAd, models.CompanyAd.CompanyAdID == models.CompanyAdSkill.CompanyAdID).filter(
+        models.CompanyAd.CompanyAdID == ad.CompanyAdID).all()
+
+
+def get_match_requests_for_ad(id, db):
+    return db.query(models.Match.MatchStatus, models.Match.SentAt, models.Company.CompanyName).join(
+        models.Company, models.Company.CompanyID == models.Match.CompanyID).filter(
+        models.Match.CompanyAdID == id).all()

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi_pagination import LimitOffsetPage, paginate
 from common import oauth2
 from common.hashing import hash_password
@@ -19,6 +19,8 @@ def register(user: ProfessionalRegistration, db: Session = Depends(get_db)):
     db_user = professional_services.get_pro_by_username(db, username=user.Username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
+    if professional_services.email_exists(db, user.ProfessionalEmail):
+        raise HTTPException(status_code=400, detail='Email already registered.')
     return professional_services.register(user=user, db=db)
 
 
@@ -60,7 +62,8 @@ def get_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Ses
 
 
 @professionals_router.put('/update_ad/{ad_id}')
-def edit_ad(new_ad: CompanyAd, ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+def edit_ad(new_ad: CompanyAd, ad_id: int, user_id=Depends(oauth2.get_current_professional),
+            db: Session = Depends(get_db)):
     ad = professional_services.get_ad(ad_id, db)
     if not ad:
         raise HTTPException(status_code=404, detail=f'Company ad with id {ad_id} does not exist')
@@ -74,7 +77,8 @@ def set_main_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db
     ad = professional_services.get_ad(ad_id, db)
     if not ad or not ad.ProfessionalID == user_id.id:
         raise HTTPException(status_code=404)
-    return professional_services.set_main_ad(ad_id, user_id.id, db)
+    professional_services.set_main_ad(ad_id, user_id.id, db)
+    return Response(status_code=200, content='Main company ad was set.')
 
 
 
