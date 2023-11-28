@@ -1,3 +1,5 @@
+from http.client import HTTPException
+
 from sqlalchemy.orm import Session
 from data import schemas, models
 from data.schemas import JobAdResponse
@@ -65,16 +67,16 @@ from services.professional_services import add_skills_to_db, add_skills_to_ad
 # ^^^^^^^ Тоя код не позволява да има абсолютно едни и същи job ad-ове 
 def create_job_ad(id: int, skills, ad: schemas.JobAd, db: Session):
     new_ad = models.JobAd(CompanyID=id,
-                              BottomSalary=ad.BottomSalary,
-                              TopSalary=ad.TopSalary,
-                              JobDescription=ad.JobDescription,
-                              Location=ad.Location)
+                          BottomSalary=ad.BottomSalary,
+                          TopSalary=ad.TopSalary,
+                          JobDescription=ad.JobDescription,
+                          Location=ad.Location)
     db.add(new_ad)
     db.flush()
     db.commit()
     db.refresh(new_ad)
     add_skills_to_ad(new_ad.JobAdID, skills, db)
-    ad = db.query(models.JobAd).filter(models.JobAd.JobAdID==new_ad.JobAdID).first()
+    ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == new_ad.JobAdID).first()
     names = get_names(id, db)
     return JobAdResponse(
         # Username=names.Username,
@@ -89,9 +91,10 @@ def create_job_ad(id: int, skills, ad: schemas.JobAd, db: Session):
         UpdatedAt=ad.UpdatedAt
     )
 
+
 def get_names(id, db):
     return db.query(models.Company.Username,
-                     models.Company.CompanyName).filter(models.Company.CompanyID == id).first()
+                    models.Company.CompanyName).filter(models.Company.CompanyID == id).first()
 
 
 def add_skills_to_job_ad(ad_id: int, skills, db: Session):
@@ -126,26 +129,50 @@ def get_all_job_ads(company_id: int, db: Session):
     return res
 
 
-def edit_jobad(new_ad, id: int, db: Session):
-    skills = new_ad.Skills.split(', ')
-    add_skills_to_db(skills, db)
-    add_skills_to_job_ad(id, skills, db)
-    ad_query = db.query(models.JobAd).filter(models.JobAd.JobAdID == id)
-    ad_query.update(dict(BottomSalary=new_ad.BottomSalary, TopSalary=new_ad.TopSalary,
-                         JobDescription=new_ad.JobDescription, Location=new_ad.Location,
-                         Status=new_ad.Status), synchronize_session=False)
+def edit_job_ad(new_ad: schemas.JobAd, id: int, db: Session):
+    # Fetch the existing job ad from the database
+    job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == id).first()
+
+    # Check if job ad exists
+    if not job_ad:
+        raise HTTPException(status_code=404, detail=f"Job ad with id {id} does not exist")
+
+    # Update the JobAd attributes
+    job_ad.BottomSalary = new_ad.BottomSalary if new_ad.BottomSalary is not None else job_ad.BottomSalary
+    job_ad.TopSalary = new_ad.TopSalary if new_ad.TopSalary is not None else job_ad.TopSalary
+    job_ad.JobDescription = new_ad.JobDescription if new_ad.JobDescription is not None else job_ad.JobDescription
+    job_ad.Location = new_ad.Location if new_ad.Location is not None else job_ad.Location
+    job_ad.Status = new_ad.Status if new_ad.Status is not None else job_ad.Status
+
+    # Update Skills separately if provided
+    if new_ad.Skills is not None:
+        skills = new_ad.Skills.split(', ')
+        add_skills_to_db(skills, db)
+        add_skills_to_job_ad(id, skills, db)
+
+    # Commit changes to the database
     db.commit()
-    new_ad = ad_query.first()
-    company_id = db.query(models.JobAd.CompanyID).filter(models.JobAd.JobAdID == id).first()[0]
-    company_name = get_company_name_by_id(db, company_id)
+
+    # Refresh the job_ad object to get the updated data from the database
+    db.refresh(job_ad)
+
+    # Fetch company name for the response
+    company_name = get_company_name_by_id(db, job_ad.CompanyID)
+
+    # Construct and return the response
     return JobAdResponse(
         CompanyName=company_name,
-        BottomSalary=new_ad.BottomSalary,
-        TopSalary=new_ad.TopSalary,
-        JobDescription=new_ad.JobDescription,
-        Location=new_ad.Location,
-        Status=new_ad.Status,
-        Skills= list(skills),
-        CreatedAt=new_ad.CreatedAt,
-        UpdatedAt=new_ad.UpdatedAt
+        BottomSalary=job_ad.BottomSalary,
+        TopSalary=job_ad.TopSalary,
+        JobDescription=job_ad.JobDescription,
+        Location=job_ad.Location,
+        Status=job_ad.Status,
+        Skills=skills if new_ad.Skills is not None else None,
+        CreatedAt=job_ad.CreatedAt,
+        UpdatedAt=job_ad.UpdatedAt
     )
+
+
+def get_job_ad(id: int, db: Session):
+    job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == id).first()
+    return job_ad
