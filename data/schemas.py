@@ -150,10 +150,20 @@ class JobAd(BaseModel):
     Skills: str
 
 
-class JobAdResponse(JobAd):
-    JobAdID: int
-    CreatedAt: datetime = None
-    UpdatedAt: datetime = None
+# class JobAdResponse(JobAd):
+#     JobAdID: int
+#     CreatedAt: datetime = None
+#     UpdatedAt: datetime = None
+class JobAdResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    BottomSalary: int | None
+    TopSalary: int | None
+    JobDescription: str
+    Location: str
+    Status: str
+    Skills: list
+    CreatedAt: datetime
+    UpdatedAt: datetime
 
 
 
