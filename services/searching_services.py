@@ -51,3 +51,15 @@ def get_company(db: Session, search: str):
 def read_company(db: Session):
     ads = db.query(Company).all()
     return ads
+
+def get_job_ads_in_salary_range(db: Session, bottom_salary: float, top_salary: float):
+    query = db.query(JobAd)
+    
+    if bottom_salary is not None and top_salary is not None:
+        return query.filter(JobAd.BottomSalary >= bottom_salary, JobAd.TopSalary <= top_salary).all()
+    elif bottom_salary is not None:
+        return query.filter(JobAd.BottomSalary >= bottom_salary).all()
+    elif top_salary is not None:
+        return query.filter(JobAd.TopSalary <= top_salary).all()
+    else:
+        return query.all()
