@@ -11,9 +11,9 @@ Base.prepare(engine)
 Professional = Base.classes.professional
 Company = Base.classes.company
 JobAd = Base.classes.jobad
-
 CompanyAd = Base.classes.companyad
 Skill = Base.classes.skill
+Match = Base.classes.matchrequests
 
 
 Base_declarative = declarative_base()

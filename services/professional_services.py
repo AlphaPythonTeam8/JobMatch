@@ -1,7 +1,8 @@
 from data import schemas, models
 from sqlalchemy.orm import Session
 import sqlalchemy.exc
-from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResponse, CompanyAdMatchRequest
+from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResponse, CompanyAdMatchRequest, \
+    CompanyAdResponseMatch
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
@@ -47,7 +48,7 @@ def return_ad(ad, db: Session):
     skills = get_skills(db, ad)
     names = get_names(ad.ProfessionalID, db)
     match_requests = get_match_requests_for_ad(ad.CompanyAdID, db)
-    return CompanyAdResponse(
+    return CompanyAdResponseMatch(
         FirstName=names.FirstName,
         LastName=names.LastName,
         BottomSalary=ad.BottomSalary,

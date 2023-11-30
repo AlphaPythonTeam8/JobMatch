@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi_pagination import LimitOffsetPage, paginate
 from common import oauth2
 from common.hashing import hash_password
-from data.schemas import ProfessionalRegistration, ProfessionalBase,CompanyAd, CompanyAdResponse, \
-    ProfessionalResponse, ProfessionalUpdate
+from data.schemas import ProfessionalRegistration, ProfessionalBase, CompanyAd, CompanyAdResponse, \
+    ProfessionalResponse, ProfessionalUpdate, CompanyAdResponseMatch
 from services import professional_services
 from data.database import get_db
 from sqlalchemy.orm import Session
@@ -51,7 +51,7 @@ def get_all_ads(sort: str | None = None, user_id=Depends(oauth2.get_current_prof
     return paginate(professional_services.get_all_ads(user_id.id, sort, db),)
 
 
-@professionals_router.get('/{ad_id}', response_model=CompanyAdResponse)
+@professionals_router.get('/{ad_id}', response_model=CompanyAdResponseMatch)
 def get_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
     ad = professional_services.get_ad(ad_id, db)
     if not ad:

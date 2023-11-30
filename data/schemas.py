@@ -126,6 +126,12 @@ class CompanyAdsResponse(BaseModel):
     UpdatedAt: datetime
 
 
+class CompanyAdMatchRequest(BaseModel):
+    CompanyName: str
+    MatchStatus: str
+    SentAt: datetime
+
+
 class CompanyAdResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     FirstName: str
@@ -140,6 +146,9 @@ class CompanyAdResponse(BaseModel):
     CreatedAt: datetime
     UpdatedAt: datetime
 
+
+class CompanyAdResponseMatch(CompanyAdResponse):
+    MatchRequests: list
 
 class JobAd(BaseModel):
     BottomSalary: int | None
