@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Dynamic Boxes with User Registration</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Header-->
+    <header class="bg-dark py-5">
+        <div class="container px-5">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="text-center my-5">
+                        <h1 class="display-5 fw-bolder text-white mb-2">Dynamic Boxes with User Registration</h1>
+                        <p class="lead text-white-50 mb-4">Registered companies will be displayed dynamically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dynamic Boxes section-->
+    <section class="py-5 border-bottom" id="dynamicBoxes">
+        <div class="container px-5 my-5">
+            <div class="row gx-5" id="boxContainer">
+                <!-- Boxes will be added dynamically here -->
+            </div>
+            <div class="text-center mt-3">
+                <button class="btn btn-primary" onclick="fetchAndDisplayCompanies()">Fetch and Display Companies</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer-->
+    <footer class="py-5 bg-dark">
+        <div class="container px-5"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p></div>
+    </footer>
+
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+
+    <script>
+        function fetchAndDisplayCompanies() {
+            // Fetch companies from the server (replace this with actual fetch logic)
+            fetch('http://127.0.0.1:8000/companies/')  // Change the URL based on your server endpoint
+                .then(response => response.json())
+                .then(companies => {
+                    displayCompanies(companies);
+                })
+                .catch(error => {
+                    console.error('Error fetching companies:', error);
+                });
+        }
+
+        function displayCompanies(companies) {
+            const boxContainer = document.getElementById('boxContainer');
+            boxContainer.innerHTML = '';  // Clear existing boxes
+
+            companies.forEach(company => {
+                const newBox = document.createElement('div');
+                newBox.className = 'col-lg-4 mb-5 mb-lg-0';
+                newBox.innerHTML = `
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-person"></i></div>
+                    <h2 class="h4 fw-bolder">${company.CompanyName}</h2>
+                    <p>Username: ${company.Username}</p>
+                    <p>Description: ${company.Description}</p>
+                    <p>Location: ${company.Location}</p>
+                    <p>Contact: ${company.Contact}</p>
+                    <p>Email: ${company.Email}</p>
+                    <!-- Add more information as needed -->
+                `;
+                boxContainer.appendChild(newBox);
+            });
+        }
+    </script>
+</body>
+</html>
