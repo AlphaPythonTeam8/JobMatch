@@ -8,27 +8,46 @@ from services.email_services import send_verification_email
 
 
 def register(user: schemas.CompanyRegistration, db: Session):
+
+    """
+    Register a new company account.
+
+    Args:
+        user (schemas.CompanyRegistration): The company registration information.
+        db (Session): The database session.
+
+    Returns:
+        models.Company: The newly created company record.
+    """
+
+    # Hash the user's password
     hashed_password = hash_password(user.Password)
     user.Password = hashed_password
+
+    # Generate a verification token
     verification_token = generate_verification_token()
 
-    # Create the company user with the unverified email
-    db_user = models.Company(
-        Username = user.Username,
-        CompanyName = user.CompanyName,
-        Email = user.Email,
-        Password = user.Password,
-        VerificationToken = verification_token,
-        EmailVerified = False
+    # Check if the email address is already in use
+    existing_user = db.query(models.Company).filter(models.Company.Email == user.Email).first()
+    if existing_user:
+        return {"message": f"Email address {user.Email} is already in use."}
+
+    # Create the company user
+    company = models.Company(
+        Username=user.Username,
+        CompanyName=user.CompanyName,
+        Email=user.Email,
+        Password=user.Password,
+        VerificationToken=verification_token,
+        EmailVerified=False,
     )
-    db.add(db_user)
+    # Send the verification email
+    send_verification_email(company.Email, company.VerificationToken)
+
+    db.add(company)
     db.commit()
-    db.refresh(db_user)
-
-    # Send verification email
-    # send_verification_email(db_user.Email, verification_token)
-
-    return db_user
+    db.refresh(company)
+    return company
 
 
 def get_company_by_username(db: Session, username: str):

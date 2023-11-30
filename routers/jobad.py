@@ -58,11 +58,14 @@ def edit_job_ad(job_ad_id: int, bottom_salary: Optional[float] = None, top_salar
                 status: Optional[str] = None, skills: Optional[str] = None,
                 company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
 
+    # Get the job ad
     job_ad = jobad_services.get_job_ad(job_ad_id, db)
     if not job_ad:
         raise HTTPException(status_code=404, detail=f'Job ad with id {job_ad_id} does not exist')
+
+    # Check if the user is authorized to edit the job ad
     if job_ad.CompanyID != company_id.CompanyID:
-        raise HTTPException(status_code=403)
+        raise HTTPException(status_code=403, detail="Not authorized to edit this job ad")
 
     # Update the JobAd object
     if bottom_salary is not None:
@@ -82,6 +85,8 @@ def edit_job_ad(job_ad_id: int, bottom_salary: Optional[float] = None, top_salar
         professional_services.add_skills_to_db(skill_list, db)
         add_skills_to_ad(job_ad_id, skill_list, db)
 
+
+    # Save the changes to the database
     db.commit()
 
     return jobad_services.edit_job_ad(job_ad, job_ad_id, db)

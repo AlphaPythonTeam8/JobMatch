@@ -13,11 +13,14 @@ def send_verification_email(email_to, token):
         sender=Address(email="mailtrap@example.com", name="Mailtrap Test"),
         to=[Address(email=email_to)],
         subject="Verify your email",
-        text=f"Hi,\nPlease click on the link below to verify your email address:\nhttp://http://127.0.0.1:8000/verify_email?token={token}",
+        text=f"Hi,\nPlease click on the link below to verify your email address:\nhttp://127.0.0.1:8000/verify_email?token={token}",
     )
 
     # Create a Mailtrap client and send the email
     client = MailtrapClient(token=API_KEY)
-    client.send(mail)
+    response = client.send(mail)
 
-    print(f'Verification email sent to {email_to}')
+    if response.status_code != 200:
+        return f"Failed to send email: {response.text}"
+
+    return f"Verification email sent to {email_to}"
