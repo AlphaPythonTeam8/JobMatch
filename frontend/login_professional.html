@@ -99,7 +99,8 @@
                     }
                 })
                 .then(data => {
-                    localStorage.setItem('token', data.token);
+                    const access_token = data.access_token
+                    localStorage.setItem("access_token", access_token)
                     updateLoginLogoutLinks(); // Call the function to update the menu
                     location.href = 'logged_professional.html';
                 })
