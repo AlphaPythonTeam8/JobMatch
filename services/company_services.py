@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from common.hashing import hash_password
 from common.oauth2 import generate_verification_token
 from data import schemas, models

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>User Profile</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        /* Add your custom styles here */
+        /* Use the same styles as not_logged.html */
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            position: relative;
+            text-decoration: none;
+            color: #fff;
+            /* Change the color as needed */
+            transition: color 0.3s ease;
+            /* Add a transition for smooth color change */
+        }
+
+        .nav-item::before {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            /* Adjust the thickness of the line */
+            bottom: 0;
+            left: 0;
+            background-color: #fff;
+            /* Change the color as needed */
+            transition: width 0.3s ease;
+            /* Add a transition for smooth width change */
+        }
+
+        .nav-item:hover .nav-link {
+            color: #fff;
+            /* Change the color as needed */
+        }
+
+        .nav-item:hover::before {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Responsive navbar-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container px-5">
+            <a class="navbar-brand" href="#!">JobMatch - View Profile</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="logged_professional.html">Home</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_company.html">Login As Company</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_professional.html">Login As Professional</a></li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Header-->
+    <!-- <header class="bg-dark py-5">
+        <div class="container px-5">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="text-center my-5">
+                        <h1 class="display-5 fw-bolder text-white mb-2">User Profile</h1>
+
+                        <div id="profileDisplay">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header> -->
+    <section class="py-5 border-bottom" id="features">
+        <div class="container px-5 my-5">
+            <div class="row gx-5">
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Username</h2>
+                    <p id="pokaji_username" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Company Name</h2>
+                    <p id="pokaji_companyName" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Description</h2>
+                    <p id="pokaji_description" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Location</h2>
+                    <p id="pokaji_location" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Contact</h2>
+                    <p id="pokaji_contact" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Email</h2>
+                    <p id="pokaji_email" class="fw-bold"></p></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- <div class="container text-center">
+        <h1 class="display-5 fw-bolder text-black mb-2">User Profile</h1>
+    </div>
+    <div class="container text-center">
+        <ul id="pokaji_username"></ul>
+        <ul id="pokaji_firstName"></ul>
+        <ul id="pokaji_lastName"></ul>
+        <ul id="pokaji_email"></ul>
+    </div> -->
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+    <!-- Custom JS for profile display -->
+    <script>
+        const accessToken = localStorage.getItem('access_token');
+        fetch('http://127.0.0.1:8000/companies/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => {
+            return res.json();
+        })
+        // .then(data => {
+        //     // Check if data is an object before extracting the username
+        //     if (typeof data === 'object' && data !== null) {
+        //         const username = data.Username;  // Access the Username property directly
+        //         const companyName = data.CompanyName;
+        //         const description = data.Description;
+        //         const location = data.Location;
+        //         const contact = data.Contact;
+        //         const email = data.Email;
+
+        //         // Display the username in the desired location (e.g., in a div with the id 'pokaji_username')
+        //         // document.getElementById('pokaji_username').textContent = username;
+        //         // document.getElementById('pokaji_firstName').textContent = firstName;
+        //         // document.getElementById('pokaji_lastName').textContent = lastName;
+        //         document.getElementById('pokaji_username').textContent = `${username}`;
+        //         document.getElementById('pokaji_companyName').textContent = `${companyName}`;
+        //         document.getElementById('pokaji_description').textContent = `${description}`;
+        //         document.getElementById('pokaji_location').textContent = `${location}`;
+        //         document.getElementById('pokaji_contact').textContent = `${contact}`;
+        //         document.getElementById('pokaji_email').textContent = `${email}`;
+        //     } else {
+        //         console.error('Data is not an object:', data);
+        //     }
+        // })
+        
+        // .then(data => {
+        //     for (const key in data)(user => {
+        //         const markup = `<li>${user.Username}</li>`
+
+        //         document.querySelector('#ul').insertAdjacentHTML('beforeend', markup)
+        //     })
+        // })
+
+        .then(data => {
+            console.log(data)
+        })
+    </script>
+</body>
+
+</html>
