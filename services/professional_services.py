@@ -6,7 +6,13 @@ from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResp
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
-    db_user = models.Professional(**user.model_dump())
+    db_user = models.Professional(
+        Username=user.Username,
+        FirstName=user.FirstName,
+        LastName=user.LastName,
+        Password=user.Password,
+        ProfessionalEmail=user.ProfessionalEmail
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -195,15 +201,12 @@ def add_skills_to_db(skills, db: Session):
 
 
 def add_skills_to_ad(ad_id: int, skills, db: Session):
+    db.query(models.CompanyAdSkill).filter(models.CompanyAdSkill.CompanyAdID == ad_id).delete()
     for data in skills:
-        try:
-            skill, level = data.split(' - ')
-            skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
-            db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
-            db.commit()
-        except sqlalchemy.exc.IntegrityError:
-            db.rollback()
-            continue
+        skill, level = data.split(' - ')
+        skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
+        db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
+        db.commit()
 
 
 def get_names(id, db):
