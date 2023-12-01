@@ -40,8 +40,11 @@ def register(user: schemas.CompanyRegistration, db: Session):
         VerificationToken=verification_token,
         EmailVerified=False,
     )
-    # Send the verification email
-    send_verification_email(company.Email, company.VerificationToken)
+    try:
+        send_verification_email(company.Email, company.VerificationToken)
+    except Exception as e:
+        db.rollback()  # Undo the session changes because email sending failed
+        raise HTTPException(status_code=500, detail=f"Failed to send verification email: {str(e)}")
 
     db.add(company)
     db.commit()

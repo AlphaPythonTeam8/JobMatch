@@ -1,26 +1,40 @@
-from mailtrap import Address, Mail, MailtrapClient
-from dotenv import load_dotenv
 import os
+import smtplib
+from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
+# Load environment variables from a .env file
 load_dotenv()
 
-API_KEY = os.environ.get("API_KEY")
-
+# Retrieve Mailtrap credentials from environment variables
+MAILTRAP_USERNAME = os.getenv('MAILTRAP_USERNAME')
+MAILTRAP_PASSWORD = os.getenv('MAILTRAP_PASSWORD')
 
 def send_verification_email(email_to, token):
-    # Create a Mailtrap mail object
-    mail = Mail(
-        sender=Address(email="mailtrap@example.com", name="Mailtrap Test"),
-        to=[Address(email=email_to)],
-        subject="Verify your email",
-        text=f"Hi,\nPlease click on the link below to verify your email address:\nhttp://127.0.0.1:8000/verify_email?token={token}",
-    )
+    # SMTP settings from Mailtrap
+    smtp_server = 'sandbox.smtp.mailtrap.io'
+    smtp_port = 2525
+    
+    # Email content
+    sender_email = "from@example.com"  # This can be any email address for testing
+    subject = "Verify your email"
+    body = f"""\
+Subject: {subject}
 
-    # Create a Mailtrap client and send the email
-    client = MailtrapClient(token=API_KEY)
-    response = client.send(mail)
+Hi,
+Please click on the link below to verify your email address:
+http://127.0.0.1:8000/verify_email?token={token}
+"""
 
-    if response.status_code != 200:
-        return f"Failed to send email: {response.text}"
+    # Create the email message
+    message = MIMEText(body)
+    message['From'] = sender_email
+    message['To'] = email_to
+    message['Subject'] = subject
 
+    # Send the email via Mailtrap's SMTP server
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.login(MAILTRAP_USERNAME, MAILTRAP_PASSWORD)
+        server.sendmail(sender_email, [email_to], message.as_string())
+    
     return f"Verification email sent to {email_to}"
