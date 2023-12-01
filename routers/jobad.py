@@ -1,5 +1,5 @@
 from typing import Optional
-
+from fastapi_pagination import LimitOffsetPage, paginate
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
@@ -9,6 +9,7 @@ from common.oauth2 import get_current_company
 from data import models
 from data.database import get_db
 from data.schemas import JobAdResponse, JobAd
+from data import schemas
 from services import company_services, jobad_services, professional_services
 from services.jobad_services import create_job_ad
 from services.professional_services import add_skills_to_ad
@@ -53,11 +54,7 @@ def delete_ad(job_ad_id: int, db: Session = Depends(get_db), company=Depends(get
     return JSONResponse(content={"message": f"JobAd with ID {job_ad_id} was successfully deleted"}, status_code=200)
 
 @job_ad_router.patch('/update_job_ad/{job_ad_id}')
-def edit_job_ad(job_ad_id: int, bottom_salary: Optional[float] = None, top_salary: Optional[float] = None,
-                job_description: Optional[str] = None, location: Optional[str] = None,
-                status: Optional[str] = None, skills: Optional[str] = None,
-                company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
-
+def edit_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
     # Get the job ad
     job_ad = jobad_services.get_job_ad(job_ad_id, db)
     if not job_ad:
@@ -67,32 +64,15 @@ def edit_job_ad(job_ad_id: int, bottom_salary: Optional[float] = None, top_salar
     if job_ad.CompanyID != company_id.CompanyID:
         raise HTTPException(status_code=403, detail="Not authorized to edit this job ad")
 
-    # Update the JobAd object
-    if bottom_salary is not None:
-        job_ad.BottomSalary = bottom_salary
-    if top_salary is not None:
-        job_ad.TopSalary = top_salary
-    if job_description is not None:
-        job_ad.JobDescription = job_description
-    if location is not None:
-        job_ad.Location = location
-    if status is not None:
-        job_ad.Status = status
+    # Update the job ad
+    jobad_services.edit_job_ad(job_ad, new_ad, db)
 
-    # Update Skills
-    if skills is not None:
-        skill_list = skills.split(', ')
-        professional_services.add_skills_to_db(skill_list, db)
-        add_skills_to_ad(job_ad_id, skill_list, db)
-
-
-    # Save the changes to the database
-    db.commit()
-
-    return jobad_services.edit_job_ad(job_ad, job_ad_id, db)
+    return jobad_services.get_job_ad(job_ad_id, db)
 
 
 
-@job_ad_router.get("/", response_model=JobAd)
-def get_all_ads(company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
-    return jobad_services.get_all_job_ads(company_id=company_id.CompanyID, db=db)
+
+@job_ad_router.get('/ads')
+def get_all_ads(sort: str | None = None, user_id=Depends(oauth2.get_current_company),
+                db: Session = Depends(get_db)) -> LimitOffsetPage:
+    return paginate(jobad_services.get_all_job_ads(user_id.company_id, sort, db),)

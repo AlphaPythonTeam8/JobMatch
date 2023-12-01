@@ -53,7 +53,7 @@ class CompanyBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     Username: str = Field(pattern=r'^\w{2,30}$')
     CompanyName: str = Field(pattern=r'^[a-zA-Z]{2,30}$')
-    Email: str
+    Email: EmailStr
 
     @field_validator('Email')
     @classmethod
@@ -67,7 +67,7 @@ class CompanyBase(BaseModel):
 class Company(CompanyBase):
     Description: str | None
     Location: str | None = Field(None, min_length=5, max_length=255)
-    PictureURL: HttpUrl | None
+    PictureURL: str | None
     Contact: str | None = Field(None, min_length=5, max_length=255)
 
 class CompanyRegistration(CompanyBase):
@@ -192,3 +192,13 @@ class CompanyUpdate(BaseModel):
     Location: str | None = Field(min_length=2, max_length=50, default=None)
     PictureURL: str | None = None
     Contact: str | None = Field(min_length=5, max_length=255, default=None)
+
+
+
+class JobAdUpdate(BaseModel):
+    BottomSalary: Optional[int]
+    TopSalary: Optional[int]
+    JobDescription: Optional[str]
+    Location: Optional[str]
+    Status: Optional[str]
+    Skills: Optional[list]
