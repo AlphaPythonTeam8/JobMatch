@@ -94,6 +94,5 @@ def edit_job_ad(job_ad_id: int, bottom_salary: Optional[float] = None, top_salar
 
 
 @job_ad_router.get("/", response_model=JobAd)
-def get_all_ads(db: Session = Depends(get_db), company: int = Depends(get_current_company)):
-    return jobad_services.get_all_job_ads(company, db)
-
+def get_all_ads(company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
+    return jobad_services.get_all_job_ads(company_id=company_id.CompanyID, db=db)

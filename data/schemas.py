@@ -185,3 +185,10 @@ class ProfessionalUpdate(BaseModel):
     PhotoURL: str | None = None
     CVURL: str | None = None
     Contact: str | None = Field(min_length=5, max_length=100, default=None)
+
+
+class CompanyUpdate(BaseModel):
+    Description: str | None = Field(min_length=5, max_length=255, default=None)
+    Location: str | None = Field(min_length=2, max_length=50, default=None)
+    PictureURL: str | None = None
+    Contact: str | None = Field(min_length=5, max_length=255, default=None)

@@ -3,12 +3,11 @@ from common.oauth2 import generate_verification_token
 from data import schemas, models
 from sqlalchemy.orm import Session
 
-from data.schemas import CompanyResponse
+from data.schemas import CompanyResponse, CompanyRegistration, CompanyUpdate
 from services.email_services import send_verification_email
 
 
 def register(user: schemas.CompanyRegistration, db: Session):
-
     """
     Register a new company account.
 
@@ -64,21 +63,45 @@ def get_company_name_by_id(db: Session, company_id: int):
     return company_name[0] if company_name else None
 
 
-def update_info(id: int, profile: schemas.Company, db: Session):
-    profile_query = db.query(models.Company).filter(models.Company.CompanyID == id)
-    profile_query.update(profile.model_dump(), synchronize_session=False)
+def update_info(company_id: int, profile: schemas.CompanyUpdate, db: Session):
+    update_data = profile.model_dump()
+
+    # Perform the update operation
+    profile_query = db.query(models.Company).filter(models.Company.CompanyID == company_id)
+    profile_query.update(update_data, synchronize_session=False)
     db.commit()
-    return profile_query.first()
+
+    # Fetch the updated profile
+    updated_profile = profile_query.first()
+
+    if not updated_profile:
+        return None
+
+    # Calculate the count of active ads, similar to view_company_info
+    count_ads = db.query(models.JobAd).filter(
+        models.JobAd.CompanyID == company_id, models.JobAd.Status == "Active").count()
+
+    # Return the CompanyResponse with fields matching those in view_company_info
+    return CompanyResponse(
+        Username=updated_profile.Username,
+        CompanyName=updated_profile.CompanyName,
+        Email=updated_profile.Email,
+        Description=updated_profile.Description,
+        Location=updated_profile.Location,
+        PictureURL=updated_profile.PictureURL,
+        Contact=updated_profile.Contact,
+        ActiveAds=count_ads
+    )
 
 
-def view_company_info(id: int, db: Session):
-    profile = db.query(models.Company).filter(models.Company.CompanyID == id).first()
+def view_company_info(company_id: int, db: Session):
+    profile = db.query(models.Company).filter(models.Company.CompanyID == company_id).first()
 
     if not profile:
         return None
 
     count_ads = db.query(models.JobAd).filter(
-        models.JobAd.CompanyID == id, models.JobAd.Status == "Active").count()
+        models.JobAd.CompanyID == company_id, models.JobAd.Status == "Active").count()
 
     return CompanyResponse(
         Username=profile.Username,
@@ -90,3 +113,9 @@ def view_company_info(id: int, db: Session):
         Contact=profile.Contact,
         ActiveAds=count_ads
     )
+
+
+def get_match_requests_for_ad(company_id, db):
+    return db.query(models.Match.MatchStatus, models.Match.SentAt, models.Professional.FirstName).join(
+        models.Professional, models.Professional.ProfessionalID == models.Match.ProfessionalID).filter(
+        models.Match.JobAdID == company_id).all()

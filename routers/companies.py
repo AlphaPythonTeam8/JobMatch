@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.functions import user
-import common.oauth2
+from common import oauth2
 from data.database import get_db
-from data.schemas import CompanyBase, CompanyRegistration
+from data.schemas import CompanyBase, CompanyRegistration, CompanyResponse, CompanyUpdate
 from services import company_services
 
 companies_router = APIRouter(prefix='/companies', tags=['Companies'])
@@ -19,25 +19,14 @@ def register(company: CompanyRegistration, db: Session = Depends(get_db)):
     return company_services.register(user=company, db=db)
 
 
-@companies_router.get('/{id}')
-def get_info(id: int):
-    pass
+@companies_router.patch('/update-info', response_model=CompanyResponse)
+def update_info(
+        updated_profile: CompanyUpdate,
+        company_id=Depends(oauth2.get_current_company),
+        db: Session = Depends(get_db)):
+    return company_services.update_info(company_id.CompanyID, updated_profile, db)
 
-
-@companies_router.put('/{id}')
-def edit_info(id: int):
-    pass
-
-
-
-
-@companies_router.get('/{id}/{ad_id}')
-def get_ad(id: int, ad_id: int):
-    pass
-
-
-@companies_router.put('/{id}/{ad_id}')
-def edit_add(id: int, ad_id: int):
-    pass
-
-
+@companies_router.get('/profile', response_model=CompanyResponse)
+def get_company_info(company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
+    company = company_services.view_company_info(company_id=company_id, db=db)
+    return company
