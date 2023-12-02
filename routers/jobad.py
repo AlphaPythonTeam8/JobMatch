@@ -30,22 +30,22 @@ job_ad_router: APIRouter = APIRouter(
 #     new_ad = jobad_services.create_job_ad(id, skills, ad, db)
 #     return JobAdResponse(JobAdID=new_ad.JobAdID, CreatedAt=new_ad.CreatedAt)
 @job_ad_router.post('/create-job_ad', response_model=JobAdResponse)
-def create_ad(ad: JobAd, user_id=Depends(get_current_company), db: Session = Depends(get_db)):
+def create_ad(ad: JobAd, company_id=Depends(get_current_company), db: Session = Depends(get_db)):
     skills = ad.Skills.split(', ')
     professional_services.add_skills_to_db(skills, db)
-    return create_job_ad(user_id.CompanyID, skills, ad, db)
+    return create_job_ad(company_id, skills, ad, db)
+
 
 
 
 @job_ad_router.delete('/delete_job_ad/{job_ad_id}')
-def delete_ad(job_ad_id: int, db: Session = Depends(get_db), company=Depends(get_current_company)):
-
+def delete_ad(job_ad_id: int, db: Session = Depends(get_db), company_id=Depends(get_current_company)):
     job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).first()
 
     if not job_ad:
-        raise HTTPException(status_code=404, detail=f"Job ad with id {job_ad_id} does not exist")
+        raise HTTPException(status_code=404, detail=f"Job ad such id does not exist")
 
-    if job_ad.CompanyID != company.CompanyID:
+    if job_ad.CompanyID != company_id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this job ad")
 
     db.delete(job_ad)
@@ -53,26 +53,24 @@ def delete_ad(job_ad_id: int, db: Session = Depends(get_db), company=Depends(get
 
     return JSONResponse(content={"message": f"JobAd with ID {job_ad_id} was successfully deleted"}, status_code=200)
 
-@job_ad_router.patch('/update_job_ad/{job_ad_id}')
-def edit_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
-    # Get the job ad
+
+@job_ad_router.put('/update_job_ad/{job_ad_id}')
+def update_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session = Depends(get_db), company_id=Depends(oauth2.get_current_company)):
+    # Check if the user is authorized to edit the job ad
     job_ad = jobad_services.get_job_ad(job_ad_id, db)
     if not job_ad:
         raise HTTPException(status_code=404, detail=f'Job ad with id {job_ad_id} does not exist')
-
-    # Check if the user is authorized to edit the job ad
-    if job_ad.CompanyID != company_id.CompanyID:
+    if job_ad.CompanyID != company_id:
         raise HTTPException(status_code=403, detail="Not authorized to edit this job ad")
 
-    # Update the job ad
-    jobad_services.edit_job_ad(job_ad, new_ad, db)
+    updated_ad = jobad_services.edit_job_ad(job_ad_id, new_ad, db)
+    if not updated_ad:
+        raise HTTPException(status_code=404, detail="Job ad not found")
 
-    return jobad_services.get_job_ad(job_ad_id, db)
+    return updated_ad
 
-
-
-
-@job_ad_router.get('/ads')
-def get_all_ads(sort: str | None = None, user_id=Depends(oauth2.get_current_company),
-                db: Session = Depends(get_db)) -> LimitOffsetPage:
-    return paginate(jobad_services.get_all_job_ads(user_id.company_id, sort, db),)
+@job_ad_router.get('/ads', response_model=LimitOffsetPage[JobAdResponse])
+def get_all_ads(sort: str = 'asc', company_id=Depends(oauth2.get_current_company),
+                db: Session = Depends(get_db)):
+    ads = jobad_services.get_all_job_ads(company_id, sort, db)
+    return paginate(ads)

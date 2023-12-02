@@ -1,13 +1,14 @@
 from common import hashing
 from data.database import get_db
 from data.models import Company, Professional
-from . import oauth2
+from common import oauth2
 from data import database, schemas, models
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from fastapi import Query
-
+from data.schemas import ChangePassword
+from services.company_services import change_password
 auth_router = APIRouter(tags=['CompanyAuthentication'])
 
 
@@ -73,3 +74,11 @@ def verify_email(token: str, account_type: str = Query(default="company"), db: S
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid account type or token")
 
+
+@auth_router.post('/change-password')
+def change_company_password(
+    password_change: ChangePassword,
+    company_id: int = Depends(oauth2.get_current_company),
+    db: Session = Depends(get_db)
+):
+    return change_password(company_id, password_change.new_password, password_change.confirm_new_password, db)

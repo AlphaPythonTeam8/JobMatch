@@ -24,9 +24,9 @@ def update_info(
         updated_profile: CompanyUpdate,
         company_id=Depends(oauth2.get_current_company),
         db: Session = Depends(get_db)):
-    return company_services.update_info(company_id.CompanyID, updated_profile, db)
+    return company_services.update_info(company_id, updated_profile, db)
 
 @companies_router.get('/profile', response_model=CompanyResponse)
 def get_company_info(company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
-    company = company_services.view_company_info(company_id=company_id.CompanyID, db=db)
+    company = company_services.view_company_info(company_id=company_id, db=db)
     return company

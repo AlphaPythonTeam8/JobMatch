@@ -1,10 +1,21 @@
 from http.client import HTTPException
-
+from sqlalchemy.orm import Query
 from sqlalchemy.orm import Session
 from data import schemas, models
 from data.schemas import JobAdResponse
 from services.company_services import get_company_name_by_id
 from services.professional_services import add_skills_to_db, add_skills_to_ad
+from sqlalchemy.orm import Session
+from data.models import JobAd
+from sqlalchemy.exc import IntegrityError
+def get_all_job_ads_query(company_id: int, sort: str, db: Session):
+    query = db.query(JobAd)
+    if sort == 'asc':
+        query = query.order_by(JobAd.UpdatedAt.asc())
+    else:
+        query = query.order_by(JobAd.UpdatedAt.desc())
+    query = query.filter(JobAd.CompanyID == company_id)
+    return query
 
 
 # def create_job_ad(company_id: int, skills, ad: schemas.JobAd, db: Session):
@@ -105,19 +116,19 @@ def add_skills_to_job_ad(ad_id: int, skills, db: Session):
         db.commit()
 
 
-def get_all_job_ads(company_id: int, sort, db: Session):
+def get_all_job_ads(company_id: int, sort: str, db: Session):
     res = []
     if sort == 'asc':
-        order_query = models.CompanyAd.UpdatedAt.asc()
+        order_query = models.JobAd.UpdatedAt.asc()
     else:
-        order_query = models.CompanyAd.UpdatedAt.desc()
-    ads = db.query(models.JobAd).join(
-        models.JobAdSkill, models.JobAd.JobAdID == models.JobAdSkill.JobAdID).join(
-        models.Skill, models.JobAdSkill.SkillID == models.Skill.SkillID
-    ).filter(models.JobAd.CompanyID == company_id).order_by(order_query)
+        order_query = models.JobAd.UpdatedAt.desc()
+
+    ads = db.query(models.JobAd).filter(
+        models.JobAd.CompanyID == company_id).order_by(order_query)
+
     for ad in ads:
-        skills = get_skills(db, ad)
-        res.append(JobAdResponse(
+        skills = get_skills_for_job_ad(db, ad)
+        res.append(schemas.JobAdResponse(
             BottomSalary=ad.BottomSalary,
             TopSalary=ad.TopSalary,
             JobDescription=ad.JobDescription,
@@ -129,34 +140,57 @@ def get_all_job_ads(company_id: int, sort, db: Session):
         ))
     return res
 
-
-def edit_job_ad(new_ad: schemas.JobAd, job_ad_id: int, db: Session):
-    if not isinstance(new_ad, schemas.JobAd):
-        raise HTTPException(status_code=400, detail="Invalid request body")
-
-    if not hasattr(new_ad, "Skills"):
-        raise HTTPException(status_code=400, detail="Invalid request body")
-
-    # Check if the job ad exists
+def edit_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session):
+    # Fetch the job ad
     job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).first()
+
     if not job_ad:
-        raise HTTPException(status_code=404, detail="Job ad not found")
+        return None  # Job ad not found
 
-    # Update the job ad fields
-    update_data = new_ad.dict(exclude_unset=True)
-    db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).update(update_data)
+    if new_ad.Status and new_ad.Status not in ["Active", "Archived"]:
+        # Raise an exception or return an error indicating invalid status.
+        raise ValueError("Invalid status value")
+
+    # Update the job ad fields as per the new_ad data
+    job_ad.BottomSalary = new_ad.BottomSalary if new_ad.BottomSalary is not None else job_ad.BottomSalary
+    job_ad.TopSalary = new_ad.TopSalary if new_ad.TopSalary is not None else job_ad.TopSalary
+    job_ad.JobDescription = new_ad.JobDescription if new_ad.JobDescription is not None else job_ad.JobDescription
+    job_ad.Location = new_ad.Location if new_ad.Location is not None else job_ad.Location
+    job_ad.Status = new_ad.Status if new_ad.Status is not None else job_ad.Status
+
+    # Update skills
+    if new_ad.Skills is not None:
+        # Clear existing skills
+        db.query(models.JobAdSkill).filter(models.JobAdSkill.JobAdID == job_ad_id).delete()
+        # Add new skills
+        for skill in new_ad.Skills:
+            skill_entry = db.query(models.Skill).filter(models.Skill.Description == skill).first()
+            if not skill_entry:
+                # If skill does not exist, add it to the database
+                new_skill = models.Skill(Description=skill)
+                db.add(new_skill)
+                try:
+                    db.commit()
+                except IntegrityError:
+                    db.rollback()  # Rollback in case the skill is already added concurrently
+                    skill_entry = db.query(models.Skill).filter(models.Skill.Description == skill).first()
+                else:
+                    skill_entry = new_skill
+            db.add(models.JobAdSkill(JobAdID=job_ad_id, SkillID=skill_entry.SkillID))
+
+    # Commit changes to the database
     db.commit()
-
     return job_ad
 
 
-def get_job_ad(id: int, db: Session):
-    job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == id).first()
+def get_job_ad(job_ad_id: int, db: Session):
+    job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).first()
     return job_ad
 
 
-def get_skills(db, ad):
+def get_skills_for_job_ad(db, ad):
     return db.query(models.Skill.Description, models.JobAdSkill.Level).join(
         models.JobAdSkill, models.JobAdSkill.SkillID == models.Skill.SkillID).join(
-        models.JobAd, models.CompanyAd.JobAdID == models.JobAdSkill.JobAdID).filter(
+        models.JobAd, models.JobAd.JobAdID == models.JobAdSkill.JobAdID).filter(
         models.JobAd.JobAdID == ad.JobAdID).all()
+

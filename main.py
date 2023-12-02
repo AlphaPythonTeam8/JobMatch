@@ -42,7 +42,16 @@ if __name__ == "__main__":
 #   "Username": "ABV202",
 #   "CompanyName": "ABVC",
 #   "Email": "abvc@abv.bg",
-#   "Password": "Aa12@!vx",
+#   "Password": "Ba12@!vx",
 #   "VerificationToken": "string",
 #   "EmailVerified": false
 # }
+
+
+{
+  "Username": "SBN20",
+  "FirstName": "Suzu",
+  "LastName": "Goru",
+  "ProfessionalEmail": "suzugoru@example.com",
+  "Password": "S2fgG#21!"
+}

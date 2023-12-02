@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl, EmailStr
+from pydantic import BaseModel, Field, field_validator, ConfigDict, HttpUrl, EmailStr, validator
 
 from data.models import Skill
 
@@ -202,3 +202,22 @@ class JobAdUpdate(BaseModel):
     Location: Optional[str]
     Status: Optional[str]
     Skills: Optional[list]
+
+class ChangePassword(BaseModel):
+    new_password: str
+    confirm_new_password: str
+
+    @field_validator('new_password')
+    @classmethod
+    def validate_new_password(cls, password: str):
+        pattern = '^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$'
+        if re.match(pattern, password):
+            return password
+        else:
+            raise ValueError('New password not strong enough')
+
+    @validator('confirm_new_password')
+    def passwords_match(cls, v, values, **kwargs):
+        if 'new_password' in values and v != values['new_password']:
+            raise ValueError('Passwords do not match')
+        return v

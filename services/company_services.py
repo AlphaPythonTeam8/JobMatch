@@ -3,7 +3,7 @@ from common.hashing import hash_password
 from common.oauth2 import generate_verification_token
 from data import schemas, models
 from sqlalchemy.orm import Session
-
+from data.models import Company
 from data.schemas import CompanyResponse, CompanyRegistration, CompanyUpdate
 from services.email_services import send_verification_email
 
@@ -123,3 +123,24 @@ def get_match_requests_for_ad(company_id, db):
     return db.query(models.Match.MatchStatus, models.Match.SentAt, models.Professional.FirstName).join(
         models.Professional, models.Professional.ProfessionalID == models.Match.ProfessionalID).filter(
         models.Match.JobAdID == company_id).all()
+
+
+def change_password(company_id: int, new_password: str, confirm_new_password: str, db: Session):
+    # Verify that the two new passwords match
+    if new_password != confirm_new_password:
+        raise HTTPException(status_code=400, detail="The new passwords do not match")
+
+    # Retrieve the existing company from the database
+    company = db.query(models.Company).filter(Company.CompanyID == company_id).first()
+    
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    # Hash the new password
+    new_hashed_password = hash_password(new_password)
+
+    # Update the company's password in the database
+    company.Password = new_hashed_password
+    db.commit()
+
+    return {"message": "Password changed successfully"}
