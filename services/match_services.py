@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import Response
 import sqlalchemy.exc
 from data import models
+from services import jobad_services as ja, professional_services as p
 
 
 def send_request_to_job_ad(ad_id: int, professional_id: int, db: Session):
@@ -62,7 +63,7 @@ def professional_accept_request(professional_id: int, request_id: int, db: Sessi
         {models.Professional.Status: 'Busy'})
     if match_request.CompanyAdID:
         db.query(models.CompanyAd).filter(models.CompanyAd.CompanyAdID == match_request.CompanyAdID).update(
-            {models.JobAd.Status: 'Archived'})
+            {models.CompanyAd.Status: 'Archived'})
     db.commit()
     return Response(status_code=200, content='Match request was accepted.')
 
@@ -77,3 +78,23 @@ def company_accept_request(company_id: int, request_id: int, db: Session):
             {models.JobAd.Status: 'Archived'})
     db.commit()
     return Response(status_code=200, content='Match request was accepted.')
+
+
+def company_own_request(current_company: int, match_request, db: Session):
+    if match_request.JobAdID:
+        job_ad = ja.get_job_ad(match_request.JobAdID, db)
+        if not job_ad.CompanyID == current_company:
+            return False
+    elif not match_request.CompanyID == current_company:
+        return False
+    return True
+
+
+def professional_own_request(current_professional: int, match_request, db: Session):
+    if match_request.CompanyAdID:
+        company_ad = p.get_ad(match_request.CompanyAdID, db)
+        if not company_ad.ProfessionalID == current_professional:
+            return False
+    elif not match_request.ProfessionalID == current_professional:
+        return False
+    return True

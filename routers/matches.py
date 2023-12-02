@@ -52,6 +52,8 @@ def send_match_request_to_professional(professional_id: int, company=Depends(oau
 def professional_process_request(action: Annotated[str, Body(pattern='^accept$|^reject')], request_id: int,
                                  professional=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
     match_request = match_services.match_request_exists_by_id(request_id, db)
+    if not match_services.professional_own_request(professional.id, match_request, db):
+        raise HTTPException(status_code=403)
     if not match_request or match_request.InitializedBy == 'Professional':
         raise HTTPException(status_code=404)
     if not match_request.MatchStatus == 'Pending':
@@ -66,6 +68,8 @@ def professional_process_request(action: Annotated[str, Body(pattern='^accept$|^
 def company_process_request(action: Annotated[str, Body(pattern='^accept$|^reject')], request_id: int,
                             company=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
     match_request = match_services.match_request_exists_by_id(request_id, db)
+    if not match_services.company_own_request(company.CompanyID, match_request, db):
+        raise HTTPException(status_code=403)
     if not match_request or match_request.InitializedBy == 'Company':
         raise HTTPException(status_code=404)
     if not match_request.MatchStatus == 'Pending':
