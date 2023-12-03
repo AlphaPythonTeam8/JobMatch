@@ -88,8 +88,7 @@ def edit_ad(new_ad, id: int, db: Session):
                          CompanyAdRequirement=new_ad.CompanyAdRequirement), synchronize_session=False)
     db.commit()
     new_ad = ad_query.first()
-    names = get_names(db.query(models.CompanyAd.ProfessionalID).filter(models.CompanyAd.CompanyAdID == id).first()[0],
-                      db)
+    names = get_names(new_ad.ProfessionalID, db)
     return CompanyAdResponse(
         FirstName=names.FirstName,
         LastName=names.LastName,
@@ -236,3 +235,9 @@ def get_match_requests_for_ad(id, db):
     return db.query(models.Match.MatchStatus, models.Match.SentAt, models.Company.CompanyName).join(
         models.Company, models.Company.CompanyID == models.Match.CompanyID).filter(
         models.Match.CompanyAdID == id).all()
+
+
+def change_password(professional_id: int, new_password: str, db: Session):
+    db.query(models.Professional).filter(models.Professional.ProfessionalID == professional_id).update(
+        {models.Professional.Password: new_password})
+    db.commit()

@@ -3,12 +3,14 @@ from data.database import get_db
 from data.models import Company, Professional
 from common import oauth2
 from data import database, schemas, models
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from fastapi import Query
 from data.schemas import ChangePassword
+from services import professional_services
 from services.company_services import change_password
+
 auth_router = APIRouter(tags=['CompanyAuthentication'])
 
 
@@ -48,7 +50,6 @@ async def professional_login(professional_credentials: OAuth2PasswordRequestForm
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-
 @auth_router.get("/verify_email")
 def verify_email(token: str, account_type: str = Query(default="company"), db: Session = Depends(get_db)):
     if account_type == "company":
@@ -77,8 +78,17 @@ def verify_email(token: str, account_type: str = Query(default="company"), db: S
 
 @auth_router.post('/change-password')
 def change_company_password(
-    password_change: ChangePassword,
-    company_id: int = Depends(oauth2.get_current_company),
-    db: Session = Depends(get_db)
+        password_change: ChangePassword,
+        company_id: int = Depends(oauth2.get_current_company),
+        db: Session = Depends(get_db)
 ):
     return change_password(company_id, password_change.new_password, password_change.confirm_new_password, db)
+
+
+@professional_auth_router.post('/change-password')
+def change_professional_password(password_change: ChangePassword,
+                                 professional= Depends(oauth2.get_current_professional),
+                                 db: Session = Depends(get_db)):
+    hashed_password = hashing.hash_password(password_change.new_password)
+    professional_services.change_password(professional.id, hashed_password, db)
+    return Response(status_code=200, content='Password was successfully updated.')
