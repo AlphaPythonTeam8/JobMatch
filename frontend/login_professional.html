@@ -92,7 +92,7 @@
                     if (response.status === 200) {
                         return response.json();
                     } else if (response.status === 401 || response.status === 403) {
-                        location.href = 'wrong_info.html';
+                        location.href = 'wrong_info_professional.html';
                         throw new Error("Invalid username or password");
                     } else {
                         throw new Error("An error occurred");

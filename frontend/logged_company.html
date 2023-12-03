@@ -15,14 +15,35 @@
     </head>
     <body>
         <!-- Responsive navbar-->
+        <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container px-5">
+                <a class="navbar-brand" href="#!">JobMatch - Company</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="your_job_ads.html">Your Job Ads</a></li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="">Create Job Ad</a></li>
+                        <li class="nav-item dropdown" id="profileDropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Profile
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">Status</a></li>
+                                <li><a class="dropdown-item" href="#">View Profile</a></li>
+                                <li><a class="dropdown-item" href="not_logged.html">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav> -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container px-5">
                 <a class="navbar-brand" href="#!">JobMatch - Company</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li> -->
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="your_job_ads.html">Your Job Ads</a></li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="my_job_ads.html">Your Job Ads</a></li>
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="">Create Job Ad</a></li>
                         <li class="nav-item dropdown" id="profileDropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -32,7 +53,7 @@
                                 <!-- Profile dropdown items -->
                                 <li><a class="dropdown-item" href="#">Status</a></li>
                                 <li><a class="dropdown-item" href="profile_display_company.html">View Profile</a></li>
-                                <li><a class="dropdown-item" href="not_logged.html">Logout</a></li>
+                                <li><a class="dropdown-item" href="#" id="logoutLink">Logout</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -60,7 +81,7 @@
         <section class="py-5 border-bottom" id="features">
             <div class="container px-5 my-5">
                 <div class="row gx-5">
-                    <div class="col-lg-4 mb-5 mb-lg-0">
+                    <!-- <div class="col-lg-4 mb-5 mb-lg-0">
                         <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
                         <h2 class="h4 fw-bolder">Job Ads</h2>
                         <p>Take a look at all the existing job ads out there!</p>
@@ -68,13 +89,31 @@
                             Go To Job Ads
                             <i class="bi bi-arrow-right"></i>
                         </a>
-                    </div>
+                    </div> -->
                     <div class="col-lg-4 mb-5 mb-lg-0">
                         <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
                         <h2 class="h4 fw-bolder">Company Ads</h2>
                         <p>Go and find yourself a new professional that you would hire!</p>
-                        <a class="text-decoration-none" href="#!">
+                        <a class="text-decoration-none" href="see_all_company_ads.html">
                             Go To Company Ads
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
+                        <h2 class="h4 fw-bolder">Professionals</h2>
+                        <p>See all professionals!</p>
+                        <a class="text-decoration-none" href="see_all_professionals_by_comp.html">
+                            Go To Professionals
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
+                        <h2 class="h4 fw-bolder">Companies</h2>
+                        <p>See all companies!</p>
+                        <a class="text-decoration-none" href="see_all_companies_by_comp.html">
+                            Go To Companies
                             <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -363,5 +402,17 @@
         <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
         <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
         <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+        <script>
+            const logoutLink = document.getElementById('logoutLink');
+        
+            // Add click event listener to the Logout link
+            logoutLink.addEventListener('click', () => {
+                // Remove the token from local storage
+                localStorage.removeItem('access_token');
+        
+                // Redirect to the logout page (you can replace 'not_logged.html' with your actual logout page)
+                window.location.href = 'not_logged.html';
+            });
+        </script>
     </body>
 </html>

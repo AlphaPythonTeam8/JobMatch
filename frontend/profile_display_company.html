@@ -62,7 +62,7 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="logged_professional.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="logged_company.html">Home</a></li>
                     <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_company.html">Login As Company</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_professional.html">Login As Professional</a></li> -->
                 </ul>
@@ -95,7 +95,7 @@
                 <div class="col-lg-4 mb-5 mb-lg-0">
                     <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
                     <h2 class="h4 fw-bolder">Company Name</h2>
-                    <p id="pokaji_companyName" class="fw-bold"></p></p>
+                    <p id="pokaji_companyname" class="fw-bold"></p></p>
                 </div>
                 <div class="col-lg-4 mb-5 mb-lg-0">
                     <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
@@ -109,13 +109,23 @@
                 </div>
                 <div class="col-lg-4 mb-5 mb-lg-0">
                     <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
-                    <h2 class="h4 fw-bolder">Contact</h2>
-                    <p id="pokaji_contact" class="fw-bold"></p></p>
+                    <h2 class="h4 fw-bolder">Brief Summary</h2>
+                    <p id="pokaji_summary" class="fw-bold"></p></p>
                 </div>
                 <div class="col-lg-4 mb-5 mb-lg-0">
                     <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
-                    <h2 class="h4 fw-bolder">Email</h2>
-                    <p id="pokaji_email" class="fw-bold"></p></p>
+                    <h2 class="h4 fw-bolder">Status</h2>
+                    <p id="pokaji_status" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Active Ads</h2>
+                    <p id="pokaji_activeads" class="fw-bold"></p></p>
+                </div>
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                    <h2 class="h4 fw-bolder">Contact</h2>
+                    <p id="pokaji_contact" class="fw-bold"></p></p>
                 </div>
             </div>
         </div>
@@ -146,30 +156,34 @@
         .then(res => {
             return res.json();
         })
-        // .then(data => {
-        //     // Check if data is an object before extracting the username
-        //     if (typeof data === 'object' && data !== null) {
-        //         const username = data.Username;  // Access the Username property directly
-        //         const companyName = data.CompanyName;
-        //         const description = data.Description;
-        //         const location = data.Location;
-        //         const contact = data.Contact;
-        //         const email = data.Email;
+        .then(data => {
+            // Check if data is an object before extracting the username
+            if (typeof data === 'object' && data !== null) {
+                const username = data.Username;  // Access the Username property directly
+                const companyName = data.CompanyName;
+                const description = data.Description;
+                const location = data.Location;
+                const briefSummary = data.BriefSummary;
+                const status = data.Status;
+                const activeAds = data.ActiveAds;
+                const contact = data.Contact;
 
-        //         // Display the username in the desired location (e.g., in a div with the id 'pokaji_username')
-        //         // document.getElementById('pokaji_username').textContent = username;
-        //         // document.getElementById('pokaji_firstName').textContent = firstName;
-        //         // document.getElementById('pokaji_lastName').textContent = lastName;
-        //         document.getElementById('pokaji_username').textContent = `${username}`;
-        //         document.getElementById('pokaji_companyName').textContent = `${companyName}`;
-        //         document.getElementById('pokaji_description').textContent = `${description}`;
-        //         document.getElementById('pokaji_location').textContent = `${location}`;
-        //         document.getElementById('pokaji_contact').textContent = `${contact}`;
-        //         document.getElementById('pokaji_email').textContent = `${email}`;
-        //     } else {
-        //         console.error('Data is not an object:', data);
-        //     }
-        // })
+                // Display the username in the desired location (e.g., in a div with the id 'pokaji_username')
+                // document.getElementById('pokaji_username').textContent = username;
+                // document.getElementById('pokaji_firstName').textContent = firstName;
+                // document.getElementById('pokaji_lastName').textContent = lastName;
+                document.getElementById('pokaji_username').textContent = `${username}`;
+                document.getElementById('pokaji_companyname').textContent = `${companyName}`;
+                document.getElementById('pokaji_description').textContent = `${description}`;
+                document.getElementById('pokaji_location').textContent = `${location}`;
+                document.getElementById('pokaji_summary').textContent = `${briefSummary}`;
+                document.getElementById('pokaji_status').textContent = `${status}`;
+                document.getElementById('pokaji_activeads').textContent = `${activeAds}`;
+                document.getElementById('pokaji_contact').textContent = `${contact}`;
+            } else {
+                console.error('Data is not an object:', data);
+            }
+        })
         
         // .then(data => {
         //     for (const key in data)(user => {
@@ -179,9 +193,9 @@
         //     })
         // })
 
-        .then(data => {
-            console.log(data)
-        })
+        // .then(data => {
+        //     console.log(data)
+        // })
     </script>
 </body>
 

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>User Profile</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        /* Add your custom styles here */
+        /* Use the same styles as not_logged.html */
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            position: relative;
+            text-decoration: none;
+            color: #fff;
+            /* Change the color as needed */
+            transition: color 0.3s ease;
+            /* Add a transition for smooth color change */
+        }
+
+        .nav-item::before {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            /* Adjust the thickness of the line */
+            bottom: 0;
+            left: 0;
+            background-color: #fff;
+            /* Change the color as needed */
+            transition: width 0.3s ease;
+            /* Add a transition for smooth width change */
+        }
+
+        .nav-item:hover .nav-link {
+            color: #fff;
+            /* Change the color as needed */
+        }
+
+        .nav-item:hover::before {
+            width: 100%;
+        }
+
+        #show {
+            list-style: none;
+            padding: 20px 0; /* Add padding to the top and bottom */
+        }
+
+        #show li {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px; /* Increase the bottom margin */
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+        #show li:hover {
+            transform: scale(1.05);
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Responsive navbar-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container px-5">
+            <a class="navbar-brand" href="#!">JobMatch - All Professionals</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="logged_professional.html">Home</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_company.html">Login As Company</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_professional.html">Login As Professional</a></li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Header-->
+    <!-- <header class="bg-dark py-5">
+        <div class="container px-5">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="text-center my-5">
+                        <h1 class="display-5 fw-bolder text-white mb-2">User Profile</h1>
+
+                        <div id="profileDisplay">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header> -->
+    <div class="container text-center">
+        <h1 class="display-5 fw-bolder text-black mb-2">Professionals</h1>
+        <div class="container text-center">
+            <label for="search">Search:</label>
+            <input type="text" id="search" name="search" placeholder="Enter username...">
+            <button onclick="searchJobs()">Search</button>
+        </div>
+        <ul id="show" class="professionals"></ul>
+    </div>
+    <!-- <ul id="show">
+    </ul> -->
+
+    <!-- <div class="container text-center">
+        <ul id="pokaji_username"></ul>
+        <ul id="pokaji_firstName"></ul>
+        <ul id="pokaji_lastName"></ul>
+        <ul id="pokaji_email"></ul>
+    </div> -->
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+    <!-- Custom JS for profile display -->
+    <!-- <script>
+        const accessToken = localStorage.getItem('access_token');
+        fetch('http://127.0.0.1:8000/job_ads', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => {
+            return res.json();
+        })
+        .then(data => {
+        const showElement = document.querySelector('#show');
+        data.forEach(job => {
+            const markup = `
+                <li>
+                    <strong>Bottom Salary:</strong> ${job.bottom_sal}<br>
+                    <strong>Top Salary:</strong> ${job.top_sal}<br>
+                    <strong>Location:</strong> ${job.location}<br>
+                    <strong>Status:</strong> ${job.status}<br>
+                    <strong>Job Description:</strong> ${job.job_description}
+                </li>`;
+            showElement.insertAdjacentHTML('beforeend', markup);
+        });
+    })
+    .catch(error => console.error('Error fetching data:', error));
+    </script> -->
+
+    <script>
+        const accessToken = localStorage.getItem('access_token');
+    
+        function fetchJobAds(username = '') {
+            let apiUrl = 'http://127.0.0.1:8000/professional';
+    
+            if (username) {
+                apiUrl += `?username=${username}`;
+            }
+    
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const showElement = document.querySelector('#show');
+                showElement.innerHTML = '';
+    
+                data.forEach(user => {
+                    const propertyNames = Object.keys(user);
+    
+                    // Log property names to the console
+                    console.log('Property Names:', propertyNames);
+                    const markup = `
+                        <li>
+                            <strong>Username:</strong> ${user.username}<br>
+                            <strong>First Name:</strong> ${user.first_name}<br>
+                            <strong>Last Name:</strong> ${user.last_name}<br>
+                            <strong>Email:</strong> ${user.email}<br>
+                            <strong>Status:</strong> ${user.status}
+                        </li>`;
+                    showElement.insertAdjacentHTML('beforeend', markup);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+    
+        function searchJobs() {
+            const searchInput = document.getElementById('search');
+            const location = searchInput.value.trim();
+    
+            fetchJobAds(location);
+        }
+    
+        fetchJobAds();
+    </script>
+    
+</body>
+
+</html>
