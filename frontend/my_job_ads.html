@@ -82,7 +82,7 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="logged_professional.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="logged_company.html">Home</a></li>
                     <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_company.html">Login As Company</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="login_professional.html">Login As Professional</a></li> -->
                 </ul>
@@ -105,7 +105,7 @@
         </div>
     </header> -->
     <div class="container text-center">
-        <h1 class="display-5 fw-bolder text-black mb-2">My Company Ads</h1>
+        <h1 class="display-5 fw-bolder text-black mb-2">My Job Ads</h1>
         <ul id="show" class="job-list"></ul>
     </div>
     <!-- <ul id="show">
@@ -155,7 +155,7 @@
         const accessToken = localStorage.getItem('access_token');
     
         function fetchCompanyAds() {
-            let apiUrl = 'http://127.0.0.1:8000/professionals/ads?limit=50&offset=0';
+            let apiUrl = 'http://127.0.0.1:8000/job_ad/ads?sort=asc&limit=50&offset=0';
     
             fetch(apiUrl, {
                 method: 'GET',
@@ -172,14 +172,15 @@
                 // Check if the "items" property exists and is an array
                 if (data && Array.isArray(data.items)) {
                     data.items.forEach(job => {
+                        console.log('Job Object:', job);
                         const markup = `
                             <li>
                                 <strong>Bottom Salary:</strong> ${job.BottomSalary}<br>
                                 <strong>Top Salary:</strong> ${job.TopSalary}<br>
                                 <strong>Location:</strong> ${job.Location}<br>
                                 <strong>Status:</strong> ${job.Status}<br>
-                                <strong>Motivation Description:</strong> ${job.MotivationDescription}<br>
-                                <strong>Company Ad Requirement:</strong> ${job.CompanyAdRequirement}<br>
+                                <strong>Job Description:</strong> ${job.JobDescription}<br>
+                                <strong>Location:</strong> ${job.Location}<br>
                                 <strong>Created At:</strong> ${job.CreatedAt}
                             </li>`;
                         showElement.insertAdjacentHTML('beforeend', markup);
