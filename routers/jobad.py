@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi_pagination import LimitOffsetPage, paginate
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -29,11 +29,36 @@ job_ad_router: APIRouter = APIRouter(
 #     professional_services.add_skills_to_db(skills, db)
 #     new_ad = jobad_services.create_job_ad(id, skills, ad, db)
 #     return JobAdResponse(JobAdID=new_ad.JobAdID, CreatedAt=new_ad.CreatedAt)
+# @job_ad_router.post('/create-job_ad', response_model=JobAdResponse)
+# def create_ad(ad: JobAd, company_id=Depends(get_current_company), db: Session = Depends(get_db)):
+#     skills = ad.Skills.split(', ')
+#     professional_services.add_skills_to_db(skills, db)
+#     return create_job_ad(company_id, skills, ad, db)
 @job_ad_router.post('/create-job_ad', response_model=JobAdResponse)
-def create_ad(ad: JobAd, company_id=Depends(get_current_company), db: Session = Depends(get_db)):
-    skills = ad.Skills.split(', ')
-    professional_services.add_skills_to_db(skills, db)
-    return create_job_ad(company_id, skills, ad, db)
+def create_ad(
+    user_id=Depends(get_current_company),
+    bottom_salary: float = Form(...),
+    top_salary: float = Form(...),
+    job_description: str = Form(...),
+    location: str = Form(...),
+    status: str = Form(...),
+    skills: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    ad = JobAd(
+        BottomSalary=bottom_salary,
+        TopSalary=top_salary,
+        JobDescription=job_description,
+        Location=location,
+        Status=status,
+        Skills=skills
+    )
+
+    skills_list = skills.split(', ')
+    
+    professional_services.add_skills_to_db(skills_list, db)
+    
+    return create_job_ad(user_id.CompanyID, skills_list, ad, db)
 
 
 
@@ -45,7 +70,7 @@ def delete_ad(job_ad_id: int, db: Session = Depends(get_db), company_id=Depends(
     if not job_ad:
         raise HTTPException(status_code=404, detail=f"Job ad such id does not exist")
 
-    if job_ad.CompanyID != company_id:
+    if job_ad.CompanyID != company_id.CompanyID:
         raise HTTPException(status_code=403, detail="Not authorized to delete this job ad")
 
     db.delete(job_ad)
@@ -60,7 +85,7 @@ def update_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session = Dep
     job_ad = jobad_services.get_job_ad(job_ad_id, db)
     if not job_ad:
         raise HTTPException(status_code=404, detail=f'Job ad with id {job_ad_id} does not exist')
-    if job_ad.CompanyID != company_id:
+    if job_ad.CompanyID != company_id.CompanyID:
         raise HTTPException(status_code=403, detail="Not authorized to edit this job ad")
 
     updated_ad = jobad_services.edit_job_ad(job_ad_id, new_ad, db)
@@ -72,5 +97,5 @@ def update_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session = Dep
 @job_ad_router.get('/ads', response_model=LimitOffsetPage[JobAdResponse])
 def get_all_ads(sort: str = 'asc', company_id=Depends(oauth2.get_current_company),
                 db: Session = Depends(get_db)):
-    ads = jobad_services.get_all_job_ads(company_id, sort, db)
+    ads = jobad_services.get_all_job_ads(company_id.CompanyID, sort, db)
     return paginate(ads)

@@ -60,7 +60,8 @@ def get_current_company(token: str = Depends(oauth2_scheme), db: Session = Depen
 
     token_data = verify_access_token(token, credentials_exception)
     company_id = token_data.id
-    return company_id
+    company = db.query(models.Company).filter(models.Company.CompanyID == company_id).first()
+    return company
 
 
 def verify_professional_token(token: str, credentials_exception):

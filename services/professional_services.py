@@ -200,13 +200,23 @@ def add_skills_to_db(skills, db: Session):
             continue
 
 
+# def add_skills_to_ad(ad_id: int, skills, db: Session):
+#     db.query(models.CompanyAdSkill).filter(models.CompanyAdSkill.CompanyAdID == ad_id).delete()
+#     for data in skills:
+#         skill, level = data.split(' - ')
+#         skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
+#         db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
+#         db.commit()
 def add_skills_to_ad(ad_id: int, skills, db: Session):
-    db.query(models.CompanyAdSkill).filter(models.CompanyAdSkill.CompanyAdID == ad_id).delete()
     for data in skills:
-        skill, level = data.split(' - ')
-        skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
-        db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
-        db.commit()
+        try:
+            skill, level = data.split(' - ')
+            skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
+            db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
+            db.commit()
+        except sqlalchemy.exc.IntegrityError:
+            db.rollback()
+            continue
 
 
 def get_names(id, db):
