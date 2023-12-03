@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Form
 from fastapi_pagination import LimitOffsetPage, paginate
 from common import oauth2
 from common.hashing import hash_password
@@ -38,11 +38,37 @@ def update_info(
     return professional_services.update_info(user_id.id, updated_profile, db)
 
 
+# @professionals_router.post('/create-ad')
+# def create_ad(ad: CompanyAd, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+#     skills = ad.Skills.split(', ')
+#     professional_services.add_skills_to_db(skills, db)
+#     return professional_services.create_ad(user_id.id, skills, ad, db)
 @professionals_router.post('/create-ad')
-def create_ad(ad: CompanyAd, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
-    skills = ad.Skills.split(', ')
-    professional_services.add_skills_to_db(skills, db)
-    return professional_services.create_ad(user_id.id, skills, ad, db)
+def create_ad(
+    bottom_salary: int = Form(...),
+    top_salary: int = Form(...),
+    motivation_description: str = Form(...),
+    location: str = Form(...),
+    status: str = Form(...),
+    skills: str = Form(...),
+    company_ad_requirement: str = Form(...),
+    user_id=Depends(oauth2.get_current_professional),
+    db: Session = Depends(get_db)
+):
+    ad = CompanyAd(
+        BottomSalary=bottom_salary,
+        TopSalary=top_salary,
+        MotivationDescription=motivation_description,
+        Location=location,
+        Status=status,
+        Skills=skills,
+        CompanyAdRequirement=company_ad_requirement
+    )
+
+    skills_list = skills.split(', ')
+    professional_services.add_skills_to_db(skills_list, db)
+
+    return professional_services.create_ad(user_id.id, skills_list, ad, db)
 
 
 @professionals_router.get('/ads')

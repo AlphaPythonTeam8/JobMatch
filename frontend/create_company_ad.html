@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>JomBatch</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <section class="py-5">
+        <div class="container px-5 my-5">
+            <div class="row gx-5 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card p-5">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bolder">Register</h2>
+                        </div>
+                        <form id="registrationForm">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="bottom_salary" name="bottom_salary" placeholder="Enter bottom salary" required />
+                                <label for="bottom_salary">Bottom Salary</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="top_salary" name="top_salary" placeholder="Enter top salary" required />
+                                <label for="top_salary">Top Salary</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="motivation_description" name="motivation_description" placeholder="Enter job description" required />
+                                <label for="motivation_description">Motivation Description</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="location" name="location" placeholder="Enter location" required />
+                                <label for="location">Location</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="status" name="status" placeholder="Enter status" required />
+                                <label for="status">Status</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="skills" name="skills" placeholder="Enter job description" required />
+                                <label for="skills">Skills</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="company_ad_requirement" name="company_ad_requirement" placeholder="Enter status" required />
+                                <label for="company_ad_requirement">Company Ad Requirement</label>
+                                <div id="registrationMessage" class="text-center text-success mt-2"></div>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-lg" type="button" onclick="submitForm()">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const accessToken = localStorage.getItem('access_token');
+            function submitForm() {
+                var form = document.getElementById('registrationForm');
+                var formData = new FormData(form);
+        
+                fetch('http://127.0.0.1:8000/professionals/create-ad', {
+                    method: 'POST',
+                    headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.status === 200) {
+                        document.getElementById('registrationMessage').innerText = 'Created Job Ad Succesfully!';
+        
+                        setTimeout(function () {
+                            window.location.href = 'logged_professional.html';
+                        }, 2000);
+                    } else if (response.status === 409) {
+                        throw new Error("Username already exists");
+                    } else {
+                        throw new Error("An error occurred");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('errorMessage').innerText = error.message;
+                });
+            }
+        </script>
+        
+
+    </section>
+
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+    <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+    <!-- * *                               SB Forms JS                               * *-->
+    <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+    <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+    <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+</body>
+
+</html>
