@@ -208,6 +208,7 @@ def add_skills_to_db(skills, db: Session):
 #         db.add(models.CompanyAdSkill(CompanyAdID=ad_id, SkillID=skill_id, Level=level))
 #         db.commit()
 def add_skills_to_ad(ad_id: int, skills, db: Session):
+    db.query(models.CompanyAdSkill).filter(models.CompanyAdSkill.CompanyAdID == ad_id).delete()
     for data in skills:
         try:
             skill, level = data.split(' - ')
