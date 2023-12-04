@@ -79,10 +79,10 @@ def verify_email(token: str, account_type: str = Query(default="company"), db: S
 @auth_router.post('/change-password')
 def change_company_password(
         password_change: ChangePassword,
-        company_id: int = Depends(oauth2.get_current_company),
+        company = Depends(oauth2.get_current_company),
         db: Session = Depends(get_db)
 ):
-    return change_password(company_id, password_change.new_password, password_change.confirm_new_password, db)
+    return change_password(company.CompanyID, password_change.new_password, password_change.confirm_new_password, db)
 
 
 @professional_auth_router.post('/change-password')
