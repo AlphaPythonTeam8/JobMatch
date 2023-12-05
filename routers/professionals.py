@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Form
 from fastapi_pagination import LimitOffsetPage, paginate
+from sqlalchemy.orm import Session
+
 from common import oauth2
 from common.hashing import hash_password
-from data.schemas import ProfessionalRegistration, ProfessionalBase, CompanyAd, CompanyAdResponse, \
-    ProfessionalResponse, ProfessionalUpdate, CompanyAdResponseMatch
-from services import professional_services
 from data.database import get_db
-from sqlalchemy.orm import Session
 from data.models import Professional
+from data.schemas import ProfessionalRegistration, ProfessionalBase, CompanyAd, ProfessionalResponse, \
+    ProfessionalUpdate, CompanyAdResponseMatch
+from services import professional_services
 
 professionals_router = APIRouter(prefix='/professionals', tags=['Professionals'])
 
