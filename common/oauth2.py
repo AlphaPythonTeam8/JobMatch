@@ -16,7 +16,7 @@ load_dotenv()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login', scheme_name='Company Authorization')
 oauth2_scheme_pro = OAuth2PasswordBearer(tokenUrl='professional-login', scheme_name='Professional Authorization')
-
+oauth2_scheme_admin = OAuth2PasswordBearer(tokenUrl='admin-login', scheme_name='Admin Authorization')
 # pip install python-jose
 # SECRET_KEY - imported from .env
 # ALGORITHM
@@ -27,8 +27,10 @@ SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_TIME = 30
 
+
 def generate_verification_token():
     return str(uuid.uuid4())
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -82,3 +84,23 @@ def get_current_professional(token: str = Depends(oauth2_scheme_pro)):
                                           detail="Could not validate credentials",
                                           headers={"WWW-Authenticate": "Bearer"})
     return verify_professional_token(token, credentials_exception)
+
+
+def verify_admin_token(token: str, credentials_exception):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        id: int = payload.get("admin_id")
+        if not id:
+            raise credentials_exception
+        token_data = schemas.TokenData(id=id)
+    except JWTError:
+        raise credentials_exception
+
+    return token_data
+
+
+def get_current_admin(token: str = Depends(oauth2_scheme_pro)):
+    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                          detail="Could not validate credentials",
+                                          headers={"WWW-Authenticate": "Bearer"})
+    return verify_admin_token(token, credentials_exception)

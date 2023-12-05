@@ -68,6 +68,7 @@ def get_company_name_by_id(db: Session, company_id: int):
 
 
 def update_info(company_id: int, profile: schemas.CompanyUpdate, db: Session):
+    
     update_data = profile.model_dump()
 
     # Perform the update operation
@@ -144,3 +145,6 @@ def change_password(company_id: int, new_password: str, confirm_new_password: st
     db.commit()
 
     return {"message": "Password changed successfully"}
+
+
+

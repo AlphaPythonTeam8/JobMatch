@@ -7,7 +7,7 @@ from data.schemas import ProfessionalRegistration, ProfessionalBase, CompanyAd, 
 from services import professional_services
 from data.database import get_db
 from sqlalchemy.orm import Session
-
+from data.models import Professional
 
 professionals_router = APIRouter(prefix='/professionals', tags=['Professionals'])
 
@@ -108,6 +108,11 @@ def set_main_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db
 
 
 
+@professionals_router.delete('/delete')
+def delete_profile(professional: Professional = Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+    db.delete(professional)
+    db.commit()
+    return {"message": "Profile deleted successfully"}
 
 
 

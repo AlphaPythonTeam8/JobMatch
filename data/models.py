@@ -14,7 +14,7 @@ JobAd = Base.classes.jobad
 CompanyAd = Base.classes.companyad
 Skill = Base.classes.skill
 Match = Base.classes.matchrequests
-
+Admin = Base.classes.admin
 
 Base_declarative = declarative_base()
 

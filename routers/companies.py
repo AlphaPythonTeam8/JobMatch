@@ -1,12 +1,11 @@
-from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.functions import user
 from common import oauth2
 from data.database import get_db
 from data.schemas import CompanyBase, CompanyRegistration, CompanyResponse, CompanyUpdate
 from services import company_services
+from data.models import Company
 
 companies_router = APIRouter(prefix='/companies', tags=['Companies'])
 
@@ -26,7 +25,15 @@ def update_info(
         db: Session = Depends(get_db)):
     return company_services.update_info(company_id.CompanyID, updated_profile, db)
 
+
 @companies_router.get('/profile', response_model=CompanyResponse)
 def get_company_info(company_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
     company = company_services.view_company_info(company_id=company_id.CompanyID, db=db)
     return company
+
+
+@companies_router.delete('/delete')
+def delete_profile(company: Company = Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
+    db.delete(company)
+    db.commit()
+    return {"message": "Profile deleted successfully"}
