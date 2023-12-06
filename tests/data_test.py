@@ -22,7 +22,8 @@ def fake_company(
     return mock_company_registration
 
 
-def fake_professional(Username='test1',
+def fake_professional(ProfessionalID=1,
+                      Username='test1',
                       FirstName='Test',
                       LastName='Testov',
                       ProfessinalEmail='test1@test.com',
@@ -35,6 +36,7 @@ def fake_professional(Username='test1',
                       Contact=None,
                       ):
     mock_professional_registration = MagicMock()
+    mock_professional_registration.ProfessionalID = ProfessionalID
     mock_professional_registration.Username = Username
     mock_professional_registration.FirstName = FirstName
     mock_professional_registration.LastName = LastName
@@ -117,3 +119,11 @@ def fake_company_ad(
     mock_company_ad.UpdatedAt = UpdatedAt
     mock_company_ad.MatchRequests = MatchRequests
     return mock_company_ad
+
+
+
+def fake_response(exact_response, content, status_code=0):
+    mock_response = Mock(spec=exact_response)
+    mock_response.status_code = status_code
+    mock_response.content = content
+    return mock_response
