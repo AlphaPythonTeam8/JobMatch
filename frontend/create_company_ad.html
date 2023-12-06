@@ -22,7 +22,7 @@
                 <div class="col-lg-6">
                     <div class="card p-5">
                         <div class="text-center mb-4">
-                            <h2 class="fw-bolder">Register</h2>
+                            <h2 class="fw-bolder">Create Company Ad</h2>
                         </div>
                         <form id="registrationForm">
                             <div class="form-floating mb-3">
@@ -78,7 +78,7 @@
                 })
                 .then(response => {
                     if (response.status === 200) {
-                        document.getElementById('registrationMessage').innerText = 'Created Job Ad Succesfully!';
+                        document.getElementById('registrationMessage').innerText = 'Created Company Ad Succesfully!';
         
                         setTimeout(function () {
                             window.location.href = 'logged_professional.html';

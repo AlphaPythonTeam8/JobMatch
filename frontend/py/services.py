@@ -56,8 +56,8 @@ def check_username_exist_professional(nickname:str) -> bool:
 def create_company(username: str, company_name: str, email: str, password: str) -> Company | None:
         verification_token = generate_verification_token()
         generated_id = insert_query(
-            'INSERT INTO company(Username, CompanyName, Password, Description, Location, PictureURL, Contact, Email, VerificationToken, EmailVerified) VALUES (?,?,?,?,?,?,?,?,?,?)',
-            (username, company_name, password, None, None, None, None, email, verification_token, False))
+            'INSERT INTO company(Username, CompanyName, Password, Description, Location, PictureURL, Contact, Email, VerificationToken, EmailVerified, is_blocked) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+            (username, company_name, password, None, None, None, None, email, verification_token, False, False))
 
         return Company(id=generated_id, username=username, company_name=company_name, email=email, password="")
 
@@ -65,8 +65,8 @@ def create_company(username: str, company_name: str, email: str, password: str) 
 def create_professional(username: str, first_name: str, last_name: str, professional_email: str, password: str) -> Professional | None:
         verification_token = generate_verification_token()
         generated_id = insert_query(
-            'INSERT INTO professional(Username, FirstName, LastName, Password, BriefSummary, Location, Status, PhotoURL, CVURL, Contact, Email, ProfessionalEmail, VerificationToken, EmailVerified, MainAd) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-            (username, first_name, last_name, password, None, None, 'Active', None, None, None, None, professional_email, verification_token, False, None))
+            'INSERT INTO professional(Username, FirstName, LastName, Password, BriefSummary, Location, Status, PhotoURL, CVURL, Contact, Email, ProfessionalEmail, VerificationToken, EmailVerified, MainAd, is_blocked) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            (username, first_name, last_name, password, None, None, 'Active', None, None, None, None, professional_email, verification_token, False, None, False))
 
         return Professional(id=generated_id, username=username, first_name=first_name, last_name=last_name, professional_email=professional_email, password=password)
 
