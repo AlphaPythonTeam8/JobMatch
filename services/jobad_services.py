@@ -8,6 +8,7 @@ from services.professional_services import add_skills_to_db, add_skills_to_ad
 from sqlalchemy.orm import Session
 from data.models import JobAd
 from sqlalchemy.exc import IntegrityError
+import sqlalchemy.exc
 def get_all_job_ads_query(company_id: int, sort: str, db: Session):
     query = db.query(JobAd)
     if sort == 'asc':
@@ -86,7 +87,7 @@ def create_job_ad(id: int, skills, ad: schemas.JobAd, db: Session):
     db.flush()
     db.commit()
     db.refresh(new_ad)
-    add_skills_to_ad(new_ad.JobAdID, skills, db)
+    add_skills_to_job_ad(new_ad.JobAdID, skills, db)
     ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == new_ad.JobAdID).first()
     names = get_names(id, db)
     return JobAdResponse(
@@ -108,12 +109,24 @@ def get_names(id, db):
                     models.Company.CompanyName).filter(models.Company.CompanyID == id).first()
 
 
+# def add_skills_to_job_ad(ad_id: int, skills, db: Session):
+#     ad = db.query(models.JobAd.JobAdID).filter(models.JobAd.JobAdID == ad_id)
+#     for skill in skills:
+#         skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
+#         db.add(models.JobAdSkill(JobAdID=ad, SkillID=skill_id))
+#         db.commit()
+
 def add_skills_to_job_ad(ad_id: int, skills, db: Session):
-    ad = db.query(models.JobAd.JobAdID).filter(models.JobAd.JobAdID == ad_id)
-    for skill in skills:
-        skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
-        db.add(models.JobAdSkill(JobAdID=ad, SkillID=skill_id))
-        db.commit()
+    db.query(models.JobAdSkill).filter(models.JobAdSkill.JobAdID == ad_id).delete()
+    for data in skills:
+        try:
+            skill, level = data.split(' - ')
+            skill_id = db.query(models.Skill.SkillID).filter(models.Skill.Description == f"{skill}")
+            db.add(models.JobAdSkill(JobAdID=ad_id, SkillID=skill_id, Level=level))
+            db.commit()
+        except sqlalchemy.exc.IntegrityError:
+            db.rollback()
+            continue
 
 
 # def get_all_job_ads(company_id: int, sort: str, db: Session):
