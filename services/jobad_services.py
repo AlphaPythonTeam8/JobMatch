@@ -116,6 +116,29 @@ def add_skills_to_job_ad(ad_id: int, skills, db: Session):
         db.commit()
 
 
+# def get_all_job_ads(company_id: int, sort: str, db: Session):
+#     res = []
+#     if sort == 'asc':
+#         order_query = models.JobAd.UpdatedAt.asc()
+#     else:
+#         order_query = models.JobAd.UpdatedAt.desc()
+
+#     ads = db.query(models.JobAd).filter(
+#         models.JobAd.CompanyID == company_id).order_by(order_query)
+
+#     for ad in ads:
+#         skills = get_skills_for_job_ad(db, ad)
+#         res.append(schemas.JobAdResponse(
+#             BottomSalary=ad.BottomSalary,
+#             TopSalary=ad.TopSalary,
+#             JobDescription=ad.JobDescription,
+#             Location=ad.Location,
+#             Status=ad.Status,
+#             Skills=[' - '.join(skill) for skill in skills],
+#             CreatedAt=ad.CreatedAt,
+#             UpdatedAt=ad.UpdatedAt
+#         ))
+#     return res
 def get_all_job_ads(company_id: int, sort: str, db: Session):
     res = []
     if sort == 'asc':
@@ -128,13 +151,15 @@ def get_all_job_ads(company_id: int, sort: str, db: Session):
 
     for ad in ads:
         skills = get_skills_for_job_ad(db, ad)
+        # Filter out None values from skills and join the remaining elements
+        skill_strings = [' - '.join(filter(None, skill)) for skill in skills]
         res.append(schemas.JobAdResponse(
             BottomSalary=ad.BottomSalary,
             TopSalary=ad.TopSalary,
             JobDescription=ad.JobDescription,
             Location=ad.Location,
             Status=ad.Status,
-            Skills=[' - '.join(skill) for skill in skills],
+            Skills=skill_strings,
             CreatedAt=ad.CreatedAt,
             UpdatedAt=ad.UpdatedAt
         ))
