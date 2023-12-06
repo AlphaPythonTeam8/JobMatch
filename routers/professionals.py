@@ -75,8 +75,16 @@ def create_ad(
 @professionals_router.get('/ads')
 def get_all_ads(sort: str | None = None, user_id=Depends(oauth2.get_current_professional),
                 db: Session = Depends(get_db)) -> LimitOffsetPage:
-    return paginate(professional_services.get_all_ads(user_id.id, sort, db),)
+    return paginate(professional_services.get_all_ads(user_id.id, sort, db))
 
+@professionals_router.get('/sent-match-requests')
+def get_sent_match_requests(user=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+    return professional_services.get_sent_match_requests(user.id, db)
+
+
+@professionals_router.get('/received-match-requests')
+def get_received_match_requests(user=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
+    return professional_services.get_received_match_requests(user.id, db)
 
 @professionals_router.get('/{ad_id}', response_model=CompanyAdResponseMatch)
 def get_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Session = Depends(get_db)):
@@ -114,6 +122,7 @@ def delete_profile(professional: Professional = Depends(oauth2.get_current_profe
     db.delete(professional)
     db.commit()
     return {"message": "Profile deleted successfully"}
+
 
 
 

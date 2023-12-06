@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import sqlalchemy.exc
 from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResponse, CompanyAdMatchRequest, \
     CompanyAdResponseMatch
+from sqlalchemy import or_
 
 
 def register(user: schemas.ProfessionalRegistration, db: Session):
@@ -241,3 +242,38 @@ def change_password(professional_id: int, new_password: str, db: Session):
     db.query(models.Professional).filter(models.Professional.ProfessionalID == professional_id).update(
         {models.Professional.Password: new_password})
     db.commit()
+
+
+def get_sent_match_requests(user_id: int, db: Session):
+    requests = db.query(models.Match, models.Company.CompanyName).join(
+        models.Company, models.Company.CompanyID == models.Match.CompanyID, isouter=True).filter(
+        models.Match.ProfessionalID == user_id).filter(models.Match.InitializedBy == 'Professional').order_by(
+        models.Match.SentAt.desc())
+    print(requests)
+    result = []
+    for match,company in requests:
+        result.append({
+            'Company': company,
+            'JobAdID': match.JobAdID,
+            'Status': match.MatchStatus,
+            'Created': match.SentAt
+        })
+    return result
+
+
+def get_received_match_requests(user_id: int, db: Session):
+    requests = db.query(models.Match, models.Company.CompanyName).join(models.Company,
+        models.Company.CompanyID == models.Match.CompanyID,isouter=True).join(
+        models.CompanyAd, models.CompanyAd.CompanyAdID == models.Match.CompanyAdID, isouter=True).filter(
+        or_(models.Match.ProfessionalID == user_id, models.CompanyAd.ProfessionalID == user_id)).filter(
+        models.Match.InitializedBy == 'Company'
+    ).order_by(models.Match.SentAt.desc())
+    result = []
+    for request,company in requests:
+        result.append({
+            'CompanyID': company,
+            'CompanyAdID': request.CompanyAdID,
+            'Status': request.MatchStatus,
+            'Created': request.SentAt
+        })
+    return result
