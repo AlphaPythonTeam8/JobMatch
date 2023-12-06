@@ -1,7 +1,7 @@
 from data import schemas, models
 from sqlalchemy.orm import Session
 import sqlalchemy.exc
-from data.schemas import CompanyAdResponse, CompanyAdsResponse, ProfessionalResponse, CompanyAdMatchRequest, \
+from data.schemas import CompanyAdResponse, CompanyAdsResponse, CompanyAdsResponse2, ProfessionalResponse, CompanyAdMatchRequest, \
     CompanyAdResponseMatch
 from sqlalchemy import or_
 
@@ -32,7 +32,8 @@ def get_all_ads(id: int, sort, db: Session):
     ).filter(models.CompanyAd.ProfessionalID == id).order_by(order_query)
     for ad in ads:
         skills = get_skills(db, ad)
-        res.append(CompanyAdsResponse(
+        res.append(CompanyAdsResponse2(
+            CompanyAdID=ad.CompanyAdID,
             BottomSalary=ad.BottomSalary,
             TopSalary=ad.TopSalary,
             MotivationDescription=ad.MotivationDescription,

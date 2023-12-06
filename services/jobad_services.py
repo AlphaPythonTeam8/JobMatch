@@ -166,7 +166,8 @@ def get_all_job_ads(company_id: int, sort: str, db: Session):
         skills = get_skills_for_job_ad(db, ad)
         # Filter out None values from skills and join the remaining elements
         skill_strings = [' - '.join(filter(None, skill)) for skill in skills]
-        res.append(schemas.JobAdResponse(
+        res.append(schemas.JobAdResponse2(
+            JobAdID=ad.JobAdID,
             BottomSalary=ad.BottomSalary,
             TopSalary=ad.TopSalary,
             JobDescription=ad.JobDescription,
@@ -178,52 +179,91 @@ def get_all_job_ads(company_id: int, sort: str, db: Session):
         ))
     return res
 
-def edit_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session):
-    # Fetch the job ad
-    job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).first()
+# def edit_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session):
+#     # Fetch the job ad
+#     job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).first()
 
-    if not job_ad:
-        return None  # Job ad not found
+#     if not job_ad:
+#         return None  # Job ad not found
 
-    if new_ad.Status and new_ad.Status not in ["Active", "Archived"]:
-        # Raise an exception or return an error indicating invalid status.
-        raise ValueError("Invalid status value")
+#     if new_ad.Status and new_ad.Status not in ["Active", "Archived"]:
+#         # Raise an exception or return an error indicating invalid status.
+#         raise ValueError("Invalid status value")
 
-    # Update the job ad fields as per the new_ad data
-    job_ad.BottomSalary = new_ad.BottomSalary if new_ad.BottomSalary is not None else job_ad.BottomSalary
-    job_ad.TopSalary = new_ad.TopSalary if new_ad.TopSalary is not None else job_ad.TopSalary
-    job_ad.JobDescription = new_ad.JobDescription if new_ad.JobDescription is not None else job_ad.JobDescription
-    job_ad.Location = new_ad.Location if new_ad.Location is not None else job_ad.Location
-    job_ad.Status = new_ad.Status if new_ad.Status is not None else job_ad.Status
+#     # Update the job ad fields as per the new_ad data
+#     job_ad.BottomSalary = new_ad.BottomSalary if new_ad.BottomSalary is not None else job_ad.BottomSalary
+#     job_ad.TopSalary = new_ad.TopSalary if new_ad.TopSalary is not None else job_ad.TopSalary
+#     job_ad.JobDescription = new_ad.JobDescription if new_ad.JobDescription is not None else job_ad.JobDescription
+#     job_ad.Location = new_ad.Location if new_ad.Location is not None else job_ad.Location
+#     job_ad.Status = new_ad.Status if new_ad.Status is not None else job_ad.Status
 
-    # Update skills
-    if new_ad.Skills is not None:
-        # Clear existing skills
-        db.query(models.JobAdSkill).filter(models.JobAdSkill.JobAdID == job_ad_id).delete()
-        # Add new skills
-        for skill in new_ad.Skills:
-            skill_entry = db.query(models.Skill).filter(models.Skill.Description == skill).first()
-            if not skill_entry:
-                # If skill does not exist, add it to the database
-                new_skill = models.Skill(Description=skill)
-                db.add(new_skill)
-                try:
-                    db.commit()
-                except IntegrityError:
-                    db.rollback()  # Rollback in case the skill is already added concurrently
-                    skill_entry = db.query(models.Skill).filter(models.Skill.Description == skill).first()
-                else:
-                    skill_entry = new_skill
-            db.add(models.JobAdSkill(JobAdID=job_ad_id, SkillID=skill_entry.SkillID))
+#     # Update skills
+#     if new_ad.Skills is not None:
+#         # Clear existing skills
+#         db.query(models.JobAdSkill).filter(models.JobAdSkill.JobAdID == job_ad_id).delete()
+#         # Add new skills
+#         for skill in new_ad.Skills:
+#             skill_entry = db.query(models.Skill).filter(models.Skill.Description == skill).first()
+#             if not skill_entry:
+#                 # If skill does not exist, add it to the database
+#                 new_skill = models.Skill(Description=skill)
+#                 db.add(new_skill)
+#                 try:
+#                     db.commit()
+#                 except IntegrityError:
+#                     db.rollback()  # Rollback in case the skill is already added concurrently
+#                     skill_entry = db.query(models.Skill).filter(models.Skill.Description == skill).first()
+#                 else:
+#                     skill_entry = new_skill
+#             db.add(models.JobAdSkill(JobAdID=job_ad_id, SkillID=skill_entry.SkillID))
 
-    # Commit changes to the database
+#     # Commit changes to the database
+#     db.commit()
+#     return job_ad
+def edit_job_ad(new_ad, id: int, db: Session):
+    skills = new_ad.Skills.split(', ')
+    add_skills_to_db(skills, db)
+    add_skills_to_job_ad(id, skills, db)
+    ad_query = db.query(models.JobAd).filter(models.JobAd.JobAdID == id)
+    ad_query.update(dict(BottomSalary=new_ad.BottomSalary,
+                         TopSalary=new_ad.TopSalary,
+                         JobDescription=new_ad.JobDescription,
+                         Location=new_ad.Location,
+                         Status=new_ad.Status), synchronize_session=False)
     db.commit()
-    return job_ad
+    new_ad = ad_query.first()
+    # names = get_names(new_ad.ProfessionalID, db)
+    return JobAdResponse(
+        BottomSalary=new_ad.BottomSalary,
+        TopSalary=new_ad.TopSalary,
+        JobDescription=new_ad.JobDescription,
+        Location=new_ad.Location,
+        Status=new_ad.Status,
+        Skills=list(skills),
+        CreatedAt=new_ad.CreatedAt,
+        UpdatedAt=new_ad.UpdatedAt
+    )
 
 
 def get_job_ad(job_ad_id: int, db: Session):
     job_ad = db.query(models.JobAd).filter(models.JobAd.JobAdID == job_ad_id).first()
     return job_ad
+
+def return_job_ad(ad, db: Session):
+    skills = get_skills_for_job_ad(db, ad)
+
+    skills_str = [' - '.join(skill) if skill is not None else '' for skill in skills]
+    return schemas.JobAdResponse2(
+        JobAdID=ad.JobAdID,
+        BottomSalary=ad.BottomSalary,
+        TopSalary=ad.TopSalary,
+        JobDescription=ad.JobDescription,
+        Location=ad.Location,
+        Status=ad.Status,
+        Skills=skills_str,
+        CreatedAt=ad.CreatedAt,
+        UpdatedAt=ad.UpdatedAt
+    )
 
 
 def get_skills_for_job_ad(db, ad):

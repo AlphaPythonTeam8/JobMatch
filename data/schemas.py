@@ -125,6 +125,19 @@ class CompanyAdsResponse(BaseModel):
     CreatedAt: datetime
     UpdatedAt: datetime
 
+class CompanyAdsResponse2(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    CompanyAdID: Optional[int]
+    BottomSalary: int | None
+    TopSalary: int | None
+    MotivationDescription: str
+    Location: str
+    Skills: list
+    Status: str | None
+    CompanyAdRequirement: str | None
+    CreatedAt: datetime
+    UpdatedAt: datetime
+
 
 class CompanyAdMatchRequest(BaseModel):
     CompanyName: str
@@ -174,7 +187,17 @@ class JobAdResponse(BaseModel):
     CreatedAt: datetime
     UpdatedAt: datetime
 
-
+class JobAdResponse2(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    JobAdID: int
+    BottomSalary: int | None
+    TopSalary: int | None
+    JobDescription: str
+    Location: str
+    Status: str
+    Skills: list
+    CreatedAt: datetime
+    UpdatedAt: datetime
 
 
 
@@ -201,7 +224,7 @@ class JobAdUpdate(BaseModel):
     JobDescription: Optional[str]
     Location: Optional[str]
     Status: Optional[str]
-    Skills: Optional[list]
+    Skills: str | list
 
 class ChangePassword(BaseModel):
     new_password: str

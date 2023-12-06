@@ -172,16 +172,18 @@
                 // Check if the "items" property exists and is an array
                 if (data && Array.isArray(data.items)) {
                     data.items.forEach(job => {
-                        console.log('Job Object:', job);
+                        console.log('Job ID:', job.JobAdID, 'Type:', typeof(job.JobAdID));
                         const markup = `
                             <li>
+                                <strong>Job Ad ID:</strong> ${job.JobAdID}<br>
                                 <strong>Bottom Salary:</strong> ${job.BottomSalary}<br>
                                 <strong>Top Salary:</strong> ${job.TopSalary}<br>
                                 <strong>Location:</strong> ${job.Location}<br>
                                 <strong>Status:</strong> ${job.Status}<br>
                                 <strong>Job Description:</strong> ${job.JobDescription}<br>
                                 <strong>Location:</strong> ${job.Location}<br>
-                                <strong>Created At:</strong> ${job.CreatedAt}
+                                <strong>Created At:</strong> ${job.CreatedAt}<br>
+                                <button onclick="editAd(${job.JobAdID})">Edit</button>
                             </li>`;
                         showElement.insertAdjacentHTML('beforeend', markup);
                     });
@@ -190,6 +192,11 @@
                 }
             })
             .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function editAd(adId) {
+            // Redirect to the edit form with the ad_id
+            window.location.href = `edit_job_ad.html?ad_id=${adId}`;
         }
     
         fetchCompanyAds();

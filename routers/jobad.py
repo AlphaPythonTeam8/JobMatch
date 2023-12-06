@@ -8,7 +8,7 @@ from common import oauth2
 from common.oauth2 import get_current_company
 from data import models
 from data.database import get_db
-from data.schemas import JobAdResponse, JobAd
+from data.schemas import JobAdResponse, JobAd, JobAdResponse2
 from data import schemas
 from services import company_services, jobad_services, professional_services
 from services.jobad_services import create_job_ad
@@ -79,23 +79,63 @@ def delete_ad(job_ad_id: int, db: Session = Depends(get_db), company_id=Depends(
     return JSONResponse(content={"message": f"JobAd with ID {job_ad_id} was successfully deleted"}, status_code=200)
 
 
-@job_ad_router.put('/update_job_ad/{job_ad_id}')
-def update_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session = Depends(get_db), company_id=Depends(oauth2.get_current_company)):
-    # Check if the user is authorized to edit the job ad
-    job_ad = jobad_services.get_job_ad(job_ad_id, db)
+# @job_ad_router.put('/update_job_ad/{job_ad_id}')
+# def update_job_ad(job_ad_id: int, new_ad: schemas.JobAdUpdate, db: Session = Depends(get_db), company_id=Depends(oauth2.get_current_company)):
+#     # Check if the user is authorized to edit the job ad
+#     job_ad = jobad_services.get_job_ad(job_ad_id, db)
+#     if not job_ad:
+#         raise HTTPException(status_code=404, detail=f'Job ad with id {job_ad_id} does not exist')
+#     if job_ad.CompanyID != company_id.CompanyID:
+#         raise HTTPException(status_code=403, detail="Not authorized to edit this job ad")
+
+#     updated_ad = jobad_services.edit_job_ad(job_ad_id, new_ad, db)
+#     if not updated_ad:
+#         raise HTTPException(status_code=404, detail="Job ad not found")
+
+#     return updated_ad
+@job_ad_router.put('/update_job_ad/{ad_id}')
+def update_job_ad(
+    ad_id: int,
+    bottom_salary: int = Form(...),
+    top_salary: int = Form(...),
+    job_description: str = Form(...),
+    location: str = Form(...),
+    status: str = Form(...),
+    skills: str = Form(...),
+    db: Session = Depends(get_db),
+    company_id=Depends(oauth2.get_current_company)
+):
+    job_ad = jobad_services.get_job_ad(ad_id, db)
     if not job_ad:
-        raise HTTPException(status_code=404, detail=f'Job ad with id {job_ad_id} does not exist')
+        raise HTTPException(status_code=404, detail=f'Job ad with id {ad_id} does not exist')
     if job_ad.CompanyID != company_id.CompanyID:
         raise HTTPException(status_code=403, detail="Not authorized to edit this job ad")
 
-    updated_ad = jobad_services.edit_job_ad(job_ad_id, new_ad, db)
+    new_ad = schemas.JobAdUpdate(
+        BottomSalary=bottom_salary,
+        TopSalary=top_salary,
+        JobDescription=job_description,
+        Location=location,
+        Status=status,
+        Skills=skills
+    )
+
+    updated_ad = jobad_services.edit_job_ad(new_ad, ad_id, db)
     if not updated_ad:
         raise HTTPException(status_code=404, detail="Job ad not found")
-
     return updated_ad
 
-@job_ad_router.get('/ads', response_model=LimitOffsetPage[JobAdResponse])
+@job_ad_router.get('/ads', response_model=LimitOffsetPage[JobAdResponse2])
 def get_all_ads(sort: str = 'asc', company_id=Depends(oauth2.get_current_company),
                 db: Session = Depends(get_db)):
     ads = jobad_services.get_all_job_ads(company_id.CompanyID, sort, db)
     return paginate(ads)
+
+@job_ad_router.get('/{ad_id}', response_model=JobAdResponse2)
+def get_job_ad(ad_id: int, user_id=Depends(oauth2.get_current_company), db: Session = Depends(get_db)):
+    ad = jobad_services.get_job_ad(ad_id, db)
+    if not ad.CompanyID == user_id.CompanyID:
+        raise HTTPException(status_code=403)
+    if not ad:
+        raise HTTPException(status_code=404, detail=f'Job ad with id {ad_id} does not exist')
+    return jobad_services.return_job_ad(ad, db)

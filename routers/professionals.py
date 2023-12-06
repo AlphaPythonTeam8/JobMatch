@@ -96,14 +96,44 @@ def get_ad(ad_id: int, user_id=Depends(oauth2.get_current_professional), db: Ses
     return professional_services.return_ad(ad, db)
 
 
+# @professionals_router.put('/update_ad/{ad_id}')
+# def edit_ad(new_ad: CompanyAd, ad_id: int, user_id=Depends(oauth2.get_current_professional),
+#             db: Session = Depends(get_db)):
+#     ad = professional_services.get_ad(ad_id, db)
+#     if not ad:
+#         raise HTTPException(status_code=404, detail=f'Company ad with id {ad_id} does not exist')
+#     if not ad.ProfessionalID == user_id.id:
+#         raise HTTPException(status_code=403)
+#     return professional_services.edit_ad(new_ad, ad_id, db)
 @professionals_router.put('/update_ad/{ad_id}')
-def edit_ad(new_ad: CompanyAd, ad_id: int, user_id=Depends(oauth2.get_current_professional),
-            db: Session = Depends(get_db)):
+def edit_ad(
+    ad_id: int,
+    bottom_salary: int = Form(...),
+    top_salary: int = Form(...),
+    motivation_description: str = Form(...),
+    location: str = Form(...),
+    status: str = Form(...),
+    skills: str = Form(...),
+    company_ad_requirement: str = Form(...),
+    user_id=Depends(oauth2.get_current_professional),
+    db: Session = Depends(get_db)
+):
+    new_ad = CompanyAd(
+        BottomSalary=bottom_salary,
+        TopSalary=top_salary,
+        MotivationDescription=motivation_description,
+        Location=location,
+        Status=status,
+        Skills=skills,
+        CompanyAdRequirement=company_ad_requirement
+    )
+
     ad = professional_services.get_ad(ad_id, db)
     if not ad:
         raise HTTPException(status_code=404, detail=f'Company ad with id {ad_id} does not exist')
     if not ad.ProfessionalID == user_id.id:
-        raise HTTPException(status_code=403)
+        raise HTTPException(status_code=403, detail='Permission denied')
+    
     return professional_services.edit_ad(new_ad, ad_id, db)
 
 
