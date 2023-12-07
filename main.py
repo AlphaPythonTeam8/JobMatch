@@ -39,22 +39,3 @@ add_pagination(app)
 
 if __name__ == "__main__":
     uvicorn.run('main:app', host="127.0.0.1", port=8000, reload=True)
-
-#
-# {
-#   "Username": "ABV202",
-#   "CompanyName": "ABVC",
-#   "Email": "abvc@abv.bg",
-#   "Password": "Ba12@!vx",
-#   "VerificationToken": "string",
-#   "EmailVerified": false
-# }
-
-
-{
-  "Username": "SBN20",
-  "FirstName": "Suzu",
-  "LastName": "Goru",
-  "ProfessionalEmail": "suzugoru@example.com",
-  "Password": "S2fgG#21!"
-}

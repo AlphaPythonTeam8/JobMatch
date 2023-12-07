@@ -1,8 +1,6 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
-
 from common import oauth2
 from data.database import get_db
 from services import match_services, professional_services, jobad_services
