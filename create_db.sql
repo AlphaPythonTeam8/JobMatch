@@ -1,251 +1,294 @@
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+CREATE DATABASE  IF NOT EXISTS `jobmatch` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `jobmatch`;
+-- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
+--
+-- Host: jobmatchserver.mariadb.database.azure.com    Database: jobmatch
+-- ------------------------------------------------------
+-- Server version	5.6.47.0
 
-CREATE SCHEMA IF NOT EXISTS `jobmatch` DEFAULT CHARACTER SET latin1 ;
-USE `jobmatch` ;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- -----------------------------------------------------
--- Table `jobmatch`.`admin`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`admin` (
-  `AdminID` INT(11) NOT NULL AUTO_INCREMENT,
-  `Username` VARCHAR(255) NULL DEFAULT NULL,
-  `Password` VARCHAR(255) NULL DEFAULT NULL,
+--
+-- Table structure for table `admin`
+--
+
+DROP TABLE IF EXISTS `admin`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admin` (
+  `AdminID` int(11) NOT NULL AUTO_INCREMENT,
+  `Username` varchar(255) DEFAULT NULL,
+  `Password` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`AdminID`),
-  UNIQUE INDEX `Username` (`Username` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+  UNIQUE KEY `Username_UNIQUE` (`Username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `auditlog`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`auditlog`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`auditlog` (
-  `LogID` INT(11) NOT NULL AUTO_INCREMENT,
-  `UserID` INT(11) NOT NULL,
-  `ActionType` VARCHAR(255) NOT NULL,
-  `Details` TEXT NULL DEFAULT NULL,
-  `Timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  PRIMARY KEY (`LogID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+DROP TABLE IF EXISTS `auditlog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auditlog` (
+  `LogID` int(11) NOT NULL AUTO_INCREMENT,
+  `UserID` int(11) NOT NULL,
+  `ActionType` varchar(255) NOT NULL,
+  `Details` text DEFAULT NULL,
+  `Timestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`LogID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `company`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`company`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`company` (
-  `CompanyID` INT(11) NOT NULL AUTO_INCREMENT,
-  `Username` VARCHAR(255) NULL DEFAULT NULL,
-  `CompanyName` VARCHAR(255) NULL DEFAULT NULL,
-  `Password` VARCHAR(255) NULL DEFAULT NULL,
-  `Description` TEXT NULL DEFAULT NULL,
-  `Location` VARCHAR(255) NULL DEFAULT NULL,
-  `PictureURL` VARCHAR(255) NULL DEFAULT NULL,
-  `Contact` VARCHAR(255) NULL DEFAULT NULL,
-  `Email` VARCHAR(255) NULL DEFAULT NULL,
+DROP TABLE IF EXISTS `company`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `company` (
+  `CompanyID` int(11) NOT NULL AUTO_INCREMENT,
+  `Username` varchar(255) DEFAULT NULL,
+  `CompanyName` varchar(255) DEFAULT NULL,
+  `Password` varchar(255) DEFAULT NULL,
+  `Description` text DEFAULT NULL,
+  `Location` varchar(255) DEFAULT NULL,
+  `PictureURL` varchar(255) DEFAULT NULL,
+  `Contact` varchar(255) DEFAULT NULL,
+  `Email` varchar(255) DEFAULT NULL,
+  `VerificationToken` varchar(255) DEFAULT NULL,
+  `EmailVerified` tinyint(1) DEFAULT 0,
+  `is_blocked` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`CompanyID`),
-  UNIQUE INDEX `Username` (`Username` ASC) VISIBLE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 6
-DEFAULT CHARACTER SET = latin1;
+  UNIQUE KEY `Username_UNIQUE` (`Username`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `companyad`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`professional`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`professional` (
-  `ProfessionalID` INT(11) NOT NULL AUTO_INCREMENT,
-  `Username` VARCHAR(255) NULL DEFAULT NULL,
-  `FirstName` VARCHAR(255) NULL DEFAULT NULL,
-  `LastName` VARCHAR(255) NULL DEFAULT NULL,
-  `Password` VARCHAR(255) NULL DEFAULT NULL,
-  `BriefSummary` TEXT NULL DEFAULT NULL,
-  `Location` VARCHAR(255) NULL DEFAULT NULL,
-  `Status` ENUM('Active', 'Busy') NOT NULL DEFAULT 'Active',
-  `PhotoURL` VARCHAR(255) NULL DEFAULT NULL,
-  `CVURL` VARCHAR(255) NULL DEFAULT NULL,
-  `Contact` VARCHAR(255) NULL DEFAULT NULL,
-  `Email` VARCHAR(255) NULL DEFAULT NULL,
-  `ProfessionalEmail` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`ProfessionalID`),
-  UNIQUE INDEX `UniqueProfessionalEmail` (`ProfessionalEmail` ASC) VISIBLE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 2
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `jobmatch`.`companyad`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`companyad` (
-  `CompanyAdID` INT(11) NOT NULL AUTO_INCREMENT,
-  `ProfessionalID` INT(11) NULL DEFAULT NULL,
-  `BottomSalary` INT(11) NULL DEFAULT NULL,
-  `TopSalary` INT(11) NULL DEFAULT NULL,
-  `MotivationDescription` TEXT NULL DEFAULT NULL,
-  `Location` VARCHAR(255) NULL DEFAULT NULL,
-  `Status` ENUM('Active', 'Archived') NOT NULL DEFAULT 'Active',
-  `CompanyAdRequirement` TEXT NULL DEFAULT NULL,
-  `CreatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  `UpdatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+DROP TABLE IF EXISTS `companyad`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `companyad` (
+  `CompanyAdID` int(11) NOT NULL AUTO_INCREMENT,
+  `ProfessionalID` int(11) DEFAULT NULL,
+  `BottomSalary` int(11) DEFAULT NULL,
+  `TopSalary` int(11) DEFAULT NULL,
+  `MotivationDescription` text DEFAULT NULL,
+  `Location` varchar(255) DEFAULT NULL,
+  `Status` enum('Active','Archived') NOT NULL DEFAULT 'Active',
+  `CompanyAdRequirement` text DEFAULT NULL,
+  `CreatedAt` timestamp NULL DEFAULT current_timestamp(),
+  `UpdatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`CompanyAdID`),
-  INDEX `ProfessionalID` (`ProfessionalID` ASC) VISIBLE,
-  INDEX `idx_status_on_companyad` (`Status` ASC) VISIBLE,
-  INDEX `idx_location_on_companyad` (`Location` ASC) VISIBLE,
-  CONSTRAINT `companyad_ibfk_1`
-    FOREIGN KEY (`ProfessionalID`)
-    REFERENCES `jobmatch`.`professional` (`ProfessionalID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+  KEY `ProfessionalID_idx` (`ProfessionalID`),
+  KEY `idx_status_on_companyad` (`Status`),
+  KEY `idx_location_on_companyad` (`Location`),
+  CONSTRAINT `companyad_ibfk_1` FOREIGN KEY (`ProfessionalID`) REFERENCES `professional` (`ProfessionalID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `companyadskill`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`skill`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`skill` (
-  `SkillID` INT(11) NOT NULL AUTO_INCREMENT,
-  `Description` TEXT NULL DEFAULT NULL,
-  PRIMARY KEY (`SkillID`),
-  UNIQUE INDEX `Description_UNIQUE` USING HASH (`Description`) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+DROP TABLE IF EXISTS `companyadskill`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `companyadskill` (
+  `CompanyAdID` int(11) NOT NULL,
+  `SkillID` int(11) NOT NULL,
+  `Level` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`CompanyAdID`,`SkillID`),
+  KEY `fk_CompanyAdID_idx` (`CompanyAdID`),
+  KEY `fk_SkillID_idx` (`SkillID`),
+  CONSTRAINT `companyadskill_ibfk_1` FOREIGN KEY (`CompanyAdID`) REFERENCES `companyad` (`CompanyAdID`),
+  CONSTRAINT `companyadskill_ibfk_2` FOREIGN KEY (`SkillID`) REFERENCES `skill` (`SkillID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `jobad`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`companyadskill`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`companyadskill` (
-  `CompanyAdID` INT(11) NOT NULL,
-  `SkillID` INT(11) NOT NULL,
-  `Level` VARCHAR(255) NULL DEFAULT NULL,
-  PRIMARY KEY (`CompanyAdID`, `SkillID`),
-  INDEX `CompanyAdID` (`CompanyAdID` ASC) VISIBLE,
-  INDEX `SkillID` (`SkillID` ASC) VISIBLE,
-  CONSTRAINT `companyadskill_ibfk_1`
-    FOREIGN KEY (`CompanyAdID`)
-    REFERENCES `jobmatch`.`companyad` (`CompanyAdID`),
-  CONSTRAINT `companyadskill_ibfk_2`
-    FOREIGN KEY (`SkillID`)
-    REFERENCES `jobmatch`.`skill` (`SkillID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-
--- -----------------------------------------------------
--- Table `jobmatch`.`jobad`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`jobad` (
-  `JobAdID` INT(11) NOT NULL AUTO_INCREMENT,
-  `CompanyID` INT(11) NULL DEFAULT NULL,
-  `BottomSalary` INT(11) NULL DEFAULT NULL,
-  `TopSalary` INT(11) NULL DEFAULT NULL,
-  `JobDescription` TEXT NULL DEFAULT NULL,
-  `Location` VARCHAR(255) NULL DEFAULT NULL,
-  `Status` ENUM('Active', 'Archived') NOT NULL DEFAULT 'Active',
-  `CreatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
-  `UpdatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+DROP TABLE IF EXISTS `jobad`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jobad` (
+  `JobAdID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT NULL,
+  `BottomSalary` int(11) DEFAULT NULL,
+  `TopSalary` int(11) DEFAULT NULL,
+  `JobDescription` text DEFAULT NULL,
+  `Location` varchar(255) DEFAULT NULL,
+  `Status` enum('Active','Archived') NOT NULL DEFAULT 'Active',
+  `CreatedAt` timestamp NULL DEFAULT current_timestamp(),
+  `UpdatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`JobAdID`),
-  INDEX `CompanyID` (`CompanyID` ASC) VISIBLE,
-  INDEX `idx_status_on_jobad` (`Status` ASC) VISIBLE,
-  INDEX `idx_location_on_jobad` (`Location` ASC) VISIBLE,
-  CONSTRAINT `jobad_ibfk_1`
-    FOREIGN KEY (`CompanyID`)
-    REFERENCES `jobmatch`.`company` (`CompanyID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+  KEY `fk_CompanyID_idx` (`CompanyID`),
+  KEY `idx_status_on_jobad` (`Status`),
+  KEY `idx_location_on_jobad` (`Location`)
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `jobadinteraction`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`jobadinteraction`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`jobadinteraction` (
-  `InteractionID` INT(11) NOT NULL AUTO_INCREMENT,
-  `ProfessionalID` INT(11) NULL DEFAULT NULL,
-  `JobAdID` INT(11) NULL DEFAULT NULL,
-  `InteractionType` VARCHAR(255) NULL DEFAULT NULL,
-  `InteractionTimestamp` TIMESTAMP NULL DEFAULT NULL,
+DROP TABLE IF EXISTS `jobadinteraction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jobadinteraction` (
+  `InteractionID` int(11) NOT NULL AUTO_INCREMENT,
+  `ProfessionalID` int(11) DEFAULT NULL,
+  `JobAdID` int(11) DEFAULT NULL,
+  `InteractionType` varchar(255) DEFAULT NULL,
+  `InteractionTimestamp` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`InteractionID`),
-  INDEX `ProfessionalID` (`ProfessionalID` ASC) VISIBLE,
-  INDEX `JobAdID` (`JobAdID` ASC) VISIBLE,
-  CONSTRAINT `jobadinteraction_ibfk_1`
-    FOREIGN KEY (`ProfessionalID`)
-    REFERENCES `jobmatch`.`professional` (`ProfessionalID`),
-  CONSTRAINT `jobadinteraction_ibfk_2`
-    FOREIGN KEY (`JobAdID`)
-    REFERENCES `jobmatch`.`jobad` (`JobAdID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+  KEY `fk_ProfessionalID_idx` (`ProfessionalID`),
+  KEY `fk_JobAdID_idx` (`JobAdID`),
+  CONSTRAINT `jobadinteraction_ibfk_1` FOREIGN KEY (`ProfessionalID`) REFERENCES `professional` (`ProfessionalID`),
+  CONSTRAINT `jobadinteraction_ibfk_2` FOREIGN KEY (`JobAdID`) REFERENCES `jobad` (`JobAdID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `jobadskill`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`jobadskill`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`jobadskill` (
-  `JobAdID` INT(11) NOT NULL,
-  `SkillID` INT(11) NOT NULL,
-  `Level` VARCHAR(255) NULL DEFAULT NULL,
-  PRIMARY KEY (`JobAdID`, `SkillID`),
-  INDEX `JobAdID` (`JobAdID` ASC) VISIBLE,
-  INDEX `SkillID` (`SkillID` ASC) VISIBLE,
-  CONSTRAINT `jobadskill_ibfk_1`
-    FOREIGN KEY (`JobAdID`)
-    REFERENCES `jobmatch`.`jobad` (`JobAdID`),
-  CONSTRAINT `jobadskill_ibfk_2`
-    FOREIGN KEY (`SkillID`)
-    REFERENCES `jobmatch`.`skill` (`SkillID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+DROP TABLE IF EXISTS `jobadskill`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jobadskill` (
+  `JobAdID` int(11) NOT NULL,
+  `SkillID` int(11) NOT NULL,
+  `Level` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`JobAdID`,`SkillID`),
+  KEY `fk_JobAdID_idx` (`JobAdID`),
+  KEY `fk_SkillID_idx` (`SkillID`),
+  CONSTRAINT `jobadskill_ibfk_1` FOREIGN KEY (`JobAdID`) REFERENCES `jobad` (`JobAdID`),
+  CONSTRAINT `jobadskill_ibfk_2` FOREIGN KEY (`SkillID`) REFERENCES `skill` (`SkillID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `matchrequests`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`matchrequests`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`matchrequests` (
-  `RequestID` INT(11) NOT NULL AUTO_INCREMENT,
-  `CompanyAdID` INT(11) NULL DEFAULT NULL,
-  `JobAdID` INT(11) NULL DEFAULT NULL,
-  `IsVisibleToCompany` TINYINT(1) NULL DEFAULT NULL,
-  `IsVisibleToProfessional` TINYINT(1) NULL DEFAULT NULL,
-  `MatchStatus` ENUM('Pending', 'Accepted', 'Rejected') NOT NULL DEFAULT 'Pending',
-  `MatchedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+DROP TABLE IF EXISTS `matchrequests`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `matchrequests` (
+  `RequestID` int(11) NOT NULL AUTO_INCREMENT,
+  `ProfessionalID` int(11) DEFAULT NULL,
+  `CompanyAdID` int(11) DEFAULT NULL,
+  `CompanyID` int(11) DEFAULT NULL,
+  `JobAdID` int(11) DEFAULT NULL,
+  `MatchStatus` enum('Pending','Accepted','Rejected') NOT NULL DEFAULT 'Pending',
+  `ProcessedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `SentAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `InitializedBy` enum('Professional','Company') NOT NULL,
   PRIMARY KEY (`RequestID`),
-  INDEX `CompanyAdID` (`CompanyAdID` ASC) VISIBLE,
-  INDEX `JobAdID` (`JobAdID` ASC) VISIBLE,
-  INDEX `idx_matchstatus_on_matchrequests` (`MatchStatus` ASC) VISIBLE,
-  CONSTRAINT `matchrequests_ibfk_1`
-    FOREIGN KEY (`CompanyAdID`)
-    REFERENCES `jobmatch`.`companyad` (`CompanyAdID`),
-  CONSTRAINT `matchrequests_ibfk_2`
-    FOREIGN KEY (`JobAdID`)
-    REFERENCES `jobmatch`.`jobad` (`JobAdID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+  KEY `fk_CompanyAdID_idx` (`CompanyAdID`),
+  KEY `fk_JobAdID_idx` (`JobAdID`),
+  KEY `idx_matchstatus_on_matchrequests` (`MatchStatus`),
+  KEY `fk_matchrequests_companyID` (`CompanyID`),
+  KEY `fk_matchrequests_professionalID` (`ProfessionalID`),
+  CONSTRAINT `fk_match_requests_companyad` FOREIGN KEY (`CompanyAdID`) REFERENCES `companyad` (`CompanyAdID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_matchrequests_companyID` FOREIGN KEY (`CompanyID`) REFERENCES `company` (`CompanyID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_matchrequests_jobad1` FOREIGN KEY (`JobAdID`) REFERENCES `jobad` (`JobAdID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_matchrequests_professionalID` FOREIGN KEY (`ProfessionalID`) REFERENCES `professional` (`ProfessionalID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `notification`
+--
 
--- -----------------------------------------------------
--- Table `jobmatch`.`notification`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `jobmatch`.`notification` (
-  `NotificationID` INT(11) NOT NULL AUTO_INCREMENT,
-  `RecipientID` INT(11) NULL DEFAULT NULL,
-  `RecipientType` ENUM('Professional', 'Company') NULL DEFAULT NULL,
-  `RequestID` INT(11) NULL DEFAULT NULL,
-  `Message` TEXT NULL DEFAULT NULL,
-  `IsRead` TINYINT(1) NULL DEFAULT 0,
-  `CreatedAt` TIMESTAMP NULL DEFAULT NULL,
+DROP TABLE IF EXISTS `notification`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notification` (
+  `NotificationID` int(11) NOT NULL AUTO_INCREMENT,
+  `RecipientID` int(11) DEFAULT NULL,
+  `RecipientType` enum('Professional','Company') DEFAULT NULL,
+  `RequestID` int(11) DEFAULT NULL,
+  `Message` text DEFAULT NULL,
+  `IsRead` tinyint(1) DEFAULT 0,
+  `CreatedAt` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`NotificationID`),
-  INDEX `RequestID` (`RequestID` ASC) VISIBLE,
-  INDEX `idx_professional_on_notification` (`RecipientID` ASC, `RecipientType` ASC) VISIBLE,
-  INDEX `idx_isread_on_notification` (`IsRead` ASC) VISIBLE,
-  CONSTRAINT `notification_ibfk_1`
-    FOREIGN KEY (`RequestID`)
-    REFERENCES `jobmatch`.`matchrequests` (`RequestID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
+  KEY `fk_RequestID_idx` (`RequestID`),
+  KEY `idx_recipient_on_notification` (`RecipientID`,`RecipientType`),
+  KEY `idx_isread_on_notification` (`IsRead`),
+  CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`RequestID`) REFERENCES `matchrequests` (`RequestID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `professional`
+--
 
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+DROP TABLE IF EXISTS `professional`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `professional` (
+  `ProfessionalID` int(11) NOT NULL AUTO_INCREMENT,
+  `Username` varchar(255) DEFAULT NULL,
+  `FirstName` varchar(255) DEFAULT NULL,
+  `LastName` varchar(255) DEFAULT NULL,
+  `Password` varchar(255) DEFAULT NULL,
+  `BriefSummary` text DEFAULT NULL,
+  `Location` varchar(255) DEFAULT NULL,
+  `Status` enum('Active','Busy') NOT NULL DEFAULT 'Active',
+  `PhotoURL` varchar(255) DEFAULT NULL,
+  `CVURL` varchar(255) DEFAULT NULL,
+  `Contact` varchar(255) DEFAULT NULL,
+  `Email` varchar(255) DEFAULT NULL,
+  `ProfessionalEmail` varchar(255) NOT NULL,
+  `VerificationToken` varchar(255) DEFAULT NULL,
+  `EmailVerified` tinyint(1) DEFAULT 0,
+  `MainAd` int(11) DEFAULT NULL,
+  `is_blocked` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`ProfessionalID`),
+  UNIQUE KEY `ProfessionalEmail_UNIQUE` (`ProfessionalEmail`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `skill`
+--
+
+DROP TABLE IF EXISTS `skill`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `skill` (
+  `SkillID` int(11) NOT NULL AUTO_INCREMENT,
+  `Description` text DEFAULT NULL,
+  PRIMARY KEY (`SkillID`),
+  UNIQUE KEY `Description_UNIQUE` (`Description`(255))
+) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2023-12-07 12:13:27
