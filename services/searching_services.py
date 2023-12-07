@@ -63,3 +63,15 @@ def get_job_ads_in_salary_range(db: Session, bottom_salary: float, top_salary: f
         return query.filter(JobAd.TopSalary <= top_salary).all()
     else:
         return query.all()
+    
+def get_company_ads_in_salary_range(db: Session, bottom_salary: float, top_salary: float):
+    query = db.query(CompanyAd)
+    
+    if bottom_salary is not None and top_salary is not None:
+        return query.filter(CompanyAd.BottomSalary >= bottom_salary, CompanyAd.TopSalary <= top_salary).all()
+    elif bottom_salary is not None:
+        return query.filter(CompanyAd.BottomSalary >= bottom_salary).all()
+    elif top_salary is not None:
+        return query.filter(CompanyAd.TopSalary <= top_salary).all()
+    else:
+        return query.all()

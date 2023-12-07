@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
-from services.searching_services import get_company_ads, read_companyads, get_job_ads, read_jobads
+from services.searching_services import get_company_ads, read_companyads, get_job_ads, read_jobads, get_company_ads_in_salary_range
 from services.searching_services import *
 from data.database import get_db
 from data.models import CompanyAd, JobAd
@@ -165,6 +165,8 @@ def search_job_ads_by_salary_range(
     threshold: float = 0.0,
     db: Session = Depends(get_db)
 ):
+    threshold /= 100
+
     if bottom_salary is not None:
         bottom_salary = bottom_salary - (bottom_salary * threshold)
     if top_salary is not None:
@@ -183,6 +185,39 @@ def search_job_ads_by_salary_range(
             "status": JobAd.Status,
             "created_at": JobAd.CreatedAt,
             "updated_at": JobAd.UpdatedAt,
+        }
+        result.append(ad_dict)
+
+    return result
+
+@searching_router.get('/company_ad', description="Salary Range Search For Company Ads")
+def search_company_ads_by_salary_range(
+    bottom_salary: float = None,
+    top_salary: float = None,
+    threshold: float = 0.0,
+    db: Session = Depends(get_db)
+):
+    threshold /= 100
+
+    if bottom_salary is not None:
+        bottom_salary = bottom_salary - (bottom_salary * threshold)
+    if top_salary is not None:
+        top_salary = top_salary + (top_salary * threshold)
+
+    company_ads = get_company_ads_in_salary_range(db, bottom_salary, top_salary)
+
+    result = []
+    for CompanyAd in company_ads:
+        ad_dict = {
+            "professional_id": CompanyAd.ProfessionalID,
+            "bottom_salary": CompanyAd.BottomSalary,
+            "top_salary": CompanyAd.TopSalary,
+            "motivation_description": CompanyAd.MotivationDescription,
+            "location": CompanyAd.Location,
+            "status": CompanyAd.Status,
+            "ad_requirement": CompanyAd.CompanyAdRequirement,
+            "created_at": CompanyAd.CreatedAt,
+            "updated_at": CompanyAd.UpdatedAt,
         }
         result.append(ad_dict)
 
